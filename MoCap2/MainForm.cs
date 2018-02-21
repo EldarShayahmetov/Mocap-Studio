@@ -18,6 +18,8 @@ namespace MoCap2
         public MainForm()
         {
             InitializeComponent();
+
+            AppInitializer.InitCameras();
         }
 
         private void Main_Load(object sender, EventArgs e)
