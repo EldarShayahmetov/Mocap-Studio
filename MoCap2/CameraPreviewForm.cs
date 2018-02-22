@@ -28,14 +28,14 @@ namespace MoCap2
         {
             InitializeComponent();
 
-
+          
             CamContainer camCont = CamContainer.GetReference();
             Camera cam0 = camCont.GetCameraByNum(0);
             Camera cam1= camCont.GetCameraByNum(1);
             cam0.OnCaptured += ShowFrame0;
             cam1.OnCaptured += ShowFrame1;
-            cam0.StartCapture();
-            cam1.StartCapture();
+        
+            
         }
 
         private void CameraPreviewForm_FormClosed(object sender, FormClosedEventArgs e)

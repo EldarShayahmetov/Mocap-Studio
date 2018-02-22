@@ -43,10 +43,15 @@ namespace MoCap2
 
         private void InitEvents()
         {
+            ResolutionCB.SelectedIndex = 0;
+            ResolutionCB.SelectedIndexChanged += ChangeResolution;
             CamerasGrid.CellClick += ChooseCam;
             MoreB.Click += OpenMoreSettings;
             ExpTB.ValueChanged += ChangeExp;
             ThrTB.ValueChanged += ChangeThr;
+            timer1.Tick += RefreshUIByTimer;
+            CamerasGrid.CellContentClick+= ChangeCapture;
+            this.FormClosing += CloseForm;
         }
 
         private void ChooseCam(object sender, DataGridViewCellEventArgs e)
@@ -65,13 +70,13 @@ namespace MoCap2
 
         private void FillCamList()
         {
-            foreach (Camera cam in camCont.GetAllCameras())
+
+              foreach (Camera cam in camCont.GetAllCameras())
             {
                 CamerasGrid.Rows.Add(cam.On, cam.GetName, cam.Fps, cam.Exposure, cam.Threshold);
             }
+
         }
-
-
         private void RefreshUI()
         {
             RefreshCamList();
@@ -87,10 +92,9 @@ namespace MoCap2
 
             ThrTB.Value = camera.Threshold;
             ExpTB.Value = (int)camera.Exposure;
+            ResolutionCB.Enabled = !camera.On;
 
         }
-
-
         private void RefreshCamList()
         {
             for(int i=0; i<camCont.GetAllCameras().Length; i++)
@@ -98,11 +102,17 @@ namespace MoCap2
                     Camera cam = camCont.GetCameraByNum(i);
                     CamerasGrid.Rows[i].Cells[0].Value = cam.On;
                     CamerasGrid.Rows[i].Cells[1].Value = cam.GetName;
-                    CamerasGrid.Rows[i].Cells[2].Value = cam.Fps;
                     CamerasGrid.Rows[i].Cells[3].Value = cam.Exposure;
                     CamerasGrid.Rows[i].Cells[4].Value = cam.Threshold;
             }
 
+        }
+        private void RefreshFps()
+        {
+            for (int i = 0; i < camCont.GetAllCameras().Length; i++)
+            {
+                CamerasGrid.Rows[i].Cells[2].Value = camCont.GetCameraByNum(i).Fps;
+            }
         }
 
 
@@ -116,6 +126,55 @@ namespace MoCap2
         {
             camCont.GetCameraByNum(camInd).Threshold = ThrTB.Value;
             RefreshUI();
+        }
+
+        private void RefreshUIByTimer(object sender, EventArgs e)
+        {
+            RefreshFps();
+        }
+
+        private void ChangeCapture(object sender, DataGridViewCellEventArgs e)
+        {
+            if(e.ColumnIndex == 0 && e.RowIndex != -1)
+            {
+                DataGridViewCheckBoxCell checkbox = (DataGridViewCheckBoxCell)CamerasGrid.CurrentCell;
+                camCont.GetCameraByNum(camInd).On = (bool)checkbox.EditedFormattedValue;
+                ResolutionCB.Enabled = !camCont.GetCameraByNum(camInd).On;
+            }
+        }
+
+        private void ChangeResolution(object sender, EventArgs e)
+        { //CHANGE CHANGE NEW METOD NEED
+            switch (ResolutionCB.SelectedItem)
+            {
+                case "640x480":
+                    camCont.GetCameraByNum(camInd).SetResolution(640, 480);
+                    break;
+                case "800x600":
+                    camCont.GetCameraByNum(camInd).SetResolution(800, 600);
+                    break;
+                case "1280x720":
+                    camCont.GetCameraByNum(camInd).SetResolution(1280, 720);
+                    break;
+                case "1920x1080":
+                    camCont.GetCameraByNum(camInd).SetResolution(1920, 1080);
+                    break;
+            }
+
+            CodecL.Text = camCont.GetCameraByNum(camInd).CodecName;
+        }
+
+
+        private void CloseForm(object sender, FormClosingEventArgs e)
+        {
+            ResolutionCB.SelectedIndexChanged -= ChangeResolution;
+            CamerasGrid.CellClick -= ChooseCam;
+            MoreB.Click -= OpenMoreSettings;
+            ExpTB.ValueChanged -= ChangeExp;
+            ThrTB.ValueChanged -= ChangeThr;
+            timer1.Tick -= RefreshUIByTimer;
+            CamerasGrid.CellContentClick -= ChangeCapture;
+            this.FormClosing -= CloseForm;
         }
 
     }

@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.panel1 = new System.Windows.Forms.Panel();
             this.MoreB = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
@@ -46,6 +47,11 @@
             this.EXP = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.THR = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.panel3 = new System.Windows.Forms.Panel();
+            this.ResolutionCB = new System.Windows.Forms.ComboBox();
+            this.CodecL = new System.Windows.Forms.Label();
+            this.ResolutionLL = new System.Windows.Forms.Label();
+            this.CodecLL = new System.Windows.Forms.Label();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ThrTB)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ExpTB)).BeginInit();
@@ -53,6 +59,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.ImagePB)).BeginInit();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.CamerasGrid)).BeginInit();
+            this.panel3.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
@@ -133,6 +140,7 @@
             // 
             // FpsTB
             // 
+            this.FpsTB.Enabled = false;
             this.FpsTB.Location = new System.Drawing.Point(152, 26);
             this.FpsTB.Name = "FpsTB";
             this.FpsTB.Orientation = System.Windows.Forms.Orientation.Vertical;
@@ -186,9 +194,10 @@
             this.EXP,
             this.THR});
             this.CamerasGrid.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.CamerasGrid.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
+            this.CamerasGrid.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
             this.CamerasGrid.GridColor = System.Drawing.SystemColors.ControlDarkDark;
             this.CamerasGrid.Location = new System.Drawing.Point(0, 0);
+            this.CamerasGrid.MultiSelect = false;
             this.CamerasGrid.Name = "CamerasGrid";
             this.CamerasGrid.RowHeadersVisible = false;
             this.CamerasGrid.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
@@ -197,10 +206,12 @@
             // 
             // EN
             // 
+            this.EN.FalseValue = "false";
             this.EN.HeaderText = "EN";
             this.EN.Name = "EN";
             this.EN.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             this.EN.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            this.EN.TrueValue = "true";
             this.EN.Width = 30;
             // 
             // Camera
@@ -235,10 +246,69 @@
             // 
             this.panel3.BackColor = System.Drawing.SystemColors.WindowFrame;
             this.panel3.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.panel3.Controls.Add(this.ResolutionCB);
+            this.panel3.Controls.Add(this.CodecL);
+            this.panel3.Controls.Add(this.ResolutionLL);
+            this.panel3.Controls.Add(this.CodecLL);
             this.panel3.Location = new System.Drawing.Point(12, 610);
             this.panel3.Name = "panel3";
             this.panel3.Size = new System.Drawing.Size(311, 205);
             this.panel3.TabIndex = 2;
+            // 
+            // ResolutionCB
+            // 
+            this.ResolutionCB.BackColor = System.Drawing.SystemColors.WindowFrame;
+            this.ResolutionCB.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.ResolutionCB.ForeColor = System.Drawing.Color.Honeydew;
+            this.ResolutionCB.FormattingEnabled = true;
+            this.ResolutionCB.Items.AddRange(new object[] {
+            "640x480",
+            "800x600",
+            "1280x720",
+            "1920x1080"});
+            this.ResolutionCB.Location = new System.Drawing.Point(163, 64);
+            this.ResolutionCB.Name = "ResolutionCB";
+            this.ResolutionCB.Size = new System.Drawing.Size(121, 24);
+            this.ResolutionCB.TabIndex = 3;
+  
+            // 
+            // CodecL
+            // 
+            this.CodecL.AutoSize = true;
+            this.CodecL.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.CodecL.ForeColor = System.Drawing.Color.Honeydew;
+            this.CodecL.Location = new System.Drawing.Point(160, 36);
+            this.CodecL.Name = "CodecL";
+            this.CodecL.Size = new System.Drawing.Size(48, 17);
+            this.CodecL.TabIndex = 2;
+            this.CodecL.Text = "YUY2";
+            // 
+            // ResolutionLL
+            // 
+            this.ResolutionLL.AutoSize = true;
+            this.ResolutionLL.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.ResolutionLL.ForeColor = System.Drawing.Color.Honeydew;
+            this.ResolutionLL.Location = new System.Drawing.Point(25, 64);
+            this.ResolutionLL.Name = "ResolutionLL";
+            this.ResolutionLL.Size = new System.Drawing.Size(85, 17);
+            this.ResolutionLL.TabIndex = 1;
+            this.ResolutionLL.Text = "Resolution";
+            // 
+            // CodecLL
+            // 
+            this.CodecLL.AutoSize = true;
+            this.CodecLL.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.CodecLL.ForeColor = System.Drawing.Color.Honeydew;
+            this.CodecLL.Location = new System.Drawing.Point(52, 36);
+            this.CodecLL.Name = "CodecLL";
+            this.CodecLL.Size = new System.Drawing.Size(53, 17);
+            this.CodecLL.TabIndex = 0;
+            this.CodecLL.Text = "Codec";
+            // 
+            // timer1
+            // 
+            this.timer1.Enabled = true;
+            this.timer1.Interval = 3000;
             // 
             // CamerasForm
             // 
@@ -261,6 +331,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.ImagePB)).EndInit();
             this.panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.CamerasGrid)).EndInit();
+            this.panel3.ResumeLayout(false);
+            this.panel3.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -280,10 +352,15 @@
         private System.Windows.Forms.TrackBar FpsTB;
         private System.Windows.Forms.DataGridView CamerasGrid;
         private System.Windows.Forms.Button MoreB;
+        private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.DataGridViewCheckBoxColumn EN;
         private System.Windows.Forms.DataGridViewTextBoxColumn Camera;
         private System.Windows.Forms.DataGridViewTextBoxColumn FPS;
         private System.Windows.Forms.DataGridViewTextBoxColumn EXP;
         private System.Windows.Forms.DataGridViewTextBoxColumn THR;
+        private System.Windows.Forms.ComboBox ResolutionCB;
+        private System.Windows.Forms.Label CodecL;
+        private System.Windows.Forms.Label ResolutionLL;
+        private System.Windows.Forms.Label CodecLL;
     }
 }

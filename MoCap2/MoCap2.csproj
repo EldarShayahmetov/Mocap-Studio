@@ -164,6 +164,9 @@
     <Content Include="Assets\Brio.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Assets\NoIcon.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\Undefined.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

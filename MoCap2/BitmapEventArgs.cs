@@ -10,10 +10,12 @@ namespace MoCap2
     class BitmapEventArgs: EventArgs
     {
         public Bitmap _bitmap { get; private set;}
+        public int _fps { get; private set; }
 
-        public BitmapEventArgs(Bitmap bitmap)
+        public BitmapEventArgs(Bitmap bitmap, int fps)
         {
             _bitmap = new Bitmap(bitmap);
+            _fps = fps;
         }
     }
 }

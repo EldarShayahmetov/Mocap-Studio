@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 
 using Emgu.CV;
 using Emgu.CV.Structure;
@@ -29,6 +31,8 @@ namespace MoCap2
         Mat _blobs;
         Bitmap _niBin;
         Graphics _graphics;
+
+        Stopwatch sw;
         #endregion
 
 
@@ -38,12 +42,14 @@ namespace MoCap2
         protected double _codec;
         protected int[] _thrBounds;
         protected double[] _expBounds;
+        protected Size[] _resolutions;
 
         protected string _name;
         protected Image _labelImg;
+        protected Image _noCapture;
         protected VideoCapture _vidCapture;
-        private int _width = 640;
-        private int _height = 480;
+        private int _width=640;
+        private int _height=480;
         private bool _On = false;
 
         protected string[] _codecs;
@@ -73,23 +79,64 @@ namespace MoCap2
             _blobs = new Mat();
             _niBin = new Bitmap(_width, _height);
 
+            _noCapture = Image.FromFile("Assets\\NoIcon.png");
             _graphics = Graphics.FromImage(_niBin);
         }
 
 
         #region Getters and Setters
 
+        public string Resolution
+        { //CHANGE CHANGE CHANGE
+            get
+            {
+                switch (_width)
+                {
+                    case 640:
+                        return "640x480";
+                    case 800:
+                        return "800x600";
+                    case 1280:
+                        return "1280x720";
+                    case 1920:
+                        return "1920x1080";
+                    default:
+                        return "640x480";
+                }
+            }
+        }
 
         public double Codec
         {
-            get { return _codec; }
-            set { _codec = value; }
+            get { return _codec;}
+            set { _codec = value;
+                _vidCapture.SetCaptureProperty(CapProp.FourCC, value);
+            }
+        }
+
+        public string CodecName
+        {
+            get
+            {
+                switch (_vidCapture.GetCaptureProperty(CapProp.FourCC))
+                {
+                    case 844715353:
+                        return "YUY2";
+
+                    case 1196444237:
+                        return "MJPEG";
+                     
+
+                    default:
+                        return "NV12 ";
+                }
+            }
         }
 
         public double Fps
         {
-            get { return _fps; }
-            set { _fps = value; }
+            get { return _fps;}
+            set { _fps = value;}
         }
 
         public int[] ThrBounds
@@ -104,7 +151,7 @@ namespace MoCap2
 
         public double Exposure
         {
-            get { return _vidCapture.GetCaptureProperty(CapProp.Exposure);}
+            get { return _exposure; }
             set { _exposure = value;
                 _vidCapture.SetCaptureProperty(CapProp.Exposure, value);
             }
@@ -119,7 +166,17 @@ namespace MoCap2
         public bool On
         {
             get { return _On; }
-            set { _On = value; }
+            set { _On = value;
+                if (_On)
+                    StartCapture();
+                else
+                {
+                    PauseCapture();
+                    Bitmap btm = new Bitmap(_noCapture);
+                    Thread.Sleep(100);
+                    OnCaptured?.Invoke(new BitmapEventArgs(btm, 0));
+                }
+            }
         }
 
         public VideoCapture GetVideoCapture
@@ -145,25 +202,31 @@ namespace MoCap2
         {
         }
 
-        public void SetResolution(int width, int heqght)
+       public void SetResolution(int width, int height)
         {
+
             _width = width;
-            _height = heqght;
+            _height = height;
+            int fcc = VideoWriter.Fourcc('M', 'J', 'P', 'G');
+            _vidCapture.SetCaptureProperty(CapProp.Fps, 90);//Max FPS
+            _vidCapture.SetCaptureProperty(CapProp.FourCC, fcc);
+            _vidCapture.SetCaptureProperty(CapProp.FrameWidth, (double)width);
+            _vidCapture.SetCaptureProperty(CapProp.FrameHeight, (double)height);
         }
 
        
         #endregion
 
 
-        public void StartCapture()
+        private void StartCapture()
         {
             _vidCapture.Start();
         }  
-        public void PauseCapture()
+        private void PauseCapture()
         {
             _vidCapture.Pause();
         }
-        public void StopCapture()
+        private void StopCapture()
         {
             _vidCapture.Stop();
         }
@@ -201,9 +264,16 @@ namespace MoCap2
                 CvInvoke.CvtColor(_m, _gray, ColorConversion.Bgr2Gray);
                 CvInvoke.Threshold(_gray, _bin, _threshold, 255, ThresholdType.Binary);
                _graphics.DrawImage(_bin.Bitmap, new PointF(0, 0));
-               OnCaptured?.Invoke(new BitmapEventArgs(_niBin));
 
+            if (sw != null)
+             Fps = 1000 / sw.ElapsedMilliseconds;
+            sw = Stopwatch.StartNew();
+
+            OnCaptured?.Invoke(new BitmapEventArgs(_niBin, (int)_fps));
         }
+
+
+
 
     }
 }
