@@ -11,11 +11,13 @@ namespace MoCap2
     {
         public Bitmap _bitmap { get; private set;}
         public int _fps { get; private set; }
+        public int _deviceNum { get; private set; }
 
-        public BitmapEventArgs(Bitmap bitmap, int fps)
+        public BitmapEventArgs(Bitmap bitmap, int fps, int deviceNum)
         {
-            _bitmap = new Bitmap(bitmap);
+            _bitmap = bitmap;
             _fps = fps;
+            _deviceNum = deviceNum;
         }
     }
 }

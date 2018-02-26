@@ -43,5 +43,9 @@ namespace MoCap2
             form.Activate();
         }
 
+        private void calibrationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ShowForm(Calibration.Instance);
+        }
     }
 }

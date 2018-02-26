@@ -98,7 +98,15 @@
   <ItemGroup>
     <Compile Include="AppInitializer.cs" />
     <Compile Include="BitmapEventArgs.cs" />
+    <Compile Include="BlobDetector.cs" />
+    <Compile Include="BlobDetectorEventArgs.cs" />
     <Compile Include="Brio.cs" />
+    <Compile Include="Calibration.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Calibration.Designer.cs">
+      <DependentUpon>Calibration.cs</DependentUpon>
+    </Compile>
     <Compile Include="Camera.cs" />
     <Compile Include="CameraPreviewForm.cs">
       <SubType>Form</SubType>
@@ -121,8 +129,13 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SettingsController.cs" />
+    <Compile Include="StereoPair.cs" />
+    <Compile Include="StereoPairCalibration.cs" />
+    <Compile Include="Triangulation.cs" />
     <Compile Include="UndefinedCamera.cs" />
+    <EmbeddedResource Include="Calibration.resx">
+      <DependentUpon>Calibration.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="CameraPreviewForm.resx">
       <DependentUpon>CameraPreviewForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -162,6 +175,15 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\Brio.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\button_calibration.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\button_triangulation.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\button_view.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\NoIcon.png">

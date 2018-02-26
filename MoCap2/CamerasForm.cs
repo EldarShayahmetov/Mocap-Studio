@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
+using System.IO;
 namespace MoCap2
 {
     public partial class CamerasForm : Form
@@ -51,8 +51,10 @@ namespace MoCap2
             ThrTB.ValueChanged += ChangeThr;
             timer1.Tick += RefreshUIByTimer;
             CamerasGrid.CellContentClick+= ChangeCapture;
+            IntrisicsB.Click += LoadIntrisicsDialog;
             this.FormClosing += CloseForm;
         }
+
 
         private void ChooseCam(object sender, DataGridViewCellEventArgs e)
         {
@@ -164,6 +166,20 @@ namespace MoCap2
             CodecL.Text = camCont.GetCameraByNum(camInd).CodecName;
         }
 
+        private void LoadIntrisicsDialog(object sender, EventArgs e)
+        {
+            var dialog = new OpenFileDialog();
+            dialog.Filter = "Comma Separated Value(*.xml) | *.xml";
+
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+
+                File.Copy(dialog.FileName, String.Concat(Environment.CurrentDirectory,"\\", Path.GetFileName(dialog.FileName)),true);
+                
+                camCont.GetCameraByNum(camInd).LoadIntrisics(Path.GetFileName(dialog.FileName));
+            }
+        }
+
 
         private void CloseForm(object sender, FormClosingEventArgs e)
         {
@@ -173,6 +189,7 @@ namespace MoCap2
             ExpTB.ValueChanged -= ChangeExp;
             ThrTB.ValueChanged -= ChangeThr;
             timer1.Tick -= RefreshUIByTimer;
+            IntrisicsB.Click -= LoadIntrisicsDialog;
             CamerasGrid.CellContentClick -= ChangeCapture;
             this.FormClosing -= CloseForm;
         }

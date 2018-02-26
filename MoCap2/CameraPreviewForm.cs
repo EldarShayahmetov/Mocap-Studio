@@ -12,6 +12,9 @@ namespace MoCap2
 {
     public partial class CameraPreviewForm : Form
     {
+
+        CamContainer camCont = CamContainer.GetReference();
+
         private static CameraPreviewForm _instance;
 
         public static CameraPreviewForm Instance
@@ -28,14 +31,11 @@ namespace MoCap2
         {
             InitializeComponent();
 
-          
-            CamContainer camCont = CamContainer.GetReference();
-            Camera cam0 = camCont.GetCameraByNum(0);
-            Camera cam1= camCont.GetCameraByNum(1);
-            cam0.OnCaptured += ShowFrame0;
-            cam1.OnCaptured += ShowFrame1;
-        
-            
+            camCont.GetCameraByNum(0).OnCaptured += ShowFrame;
+            camCont.GetCameraByNum(1).OnCaptured+=ShowFrame;
+            camCont.GetStereopair().OnModeChanged += RefreshModeButton;
+
+            RefreshUI();
         }
 
         private void CameraPreviewForm_FormClosed(object sender, FormClosedEventArgs e)
@@ -44,14 +44,24 @@ namespace MoCap2
         }
 
 
-        private void ShowFrame0(BitmapEventArgs bitmap)
+        private void ShowFrame(BitmapEventArgs bitmapArgs)
         {
-                pictureBox1.Image = bitmap._bitmap;
+            //Doubts need lock or not?
+            if (bitmapArgs._deviceNum == 0)
+                pictureBox1.Image = new Bitmap(bitmapArgs._bitmap);
+            else
+                pictureBox2.Image = new Bitmap(bitmapArgs._bitmap);
         }
 
-        private void ShowFrame1(BitmapEventArgs bitmap)
+        private void RefreshUI()
         {
-            pictureBox2.Image = bitmap._bitmap;
+            RefreshModeButton();
         }
+
+        private void RefreshModeButton()
+        {
+            ModePB.Image = camCont.GetStereopair().ModeImg;
+        }
+
     }
 }

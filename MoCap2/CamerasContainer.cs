@@ -13,6 +13,8 @@ namespace MoCap2
 
         private Camera[] _cameras;
 
+        private StereoPair _stereoPair;
+
         protected CamContainer() { }
 
         public static CamContainer GetReference()
@@ -25,6 +27,9 @@ namespace MoCap2
         public void Contain(Camera[] cameras)
         {
             _cameras = cameras;
+            //Need Change
+            if (_cameras.Length >= 2)
+                _stereoPair = new StereoPair(_cameras[0], _cameras[1]);
         }
 
         public Camera GetCameraByNum(int num)
@@ -35,6 +40,11 @@ namespace MoCap2
         public Camera[] GetAllCameras()
         {
             return _cameras;
+        }
+
+        public StereoPair GetStereopair()
+        {
+            return _stereoPair;
         }
 
         public int NumOfCams()

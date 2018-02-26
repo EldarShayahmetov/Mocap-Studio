@@ -47,6 +47,8 @@
             this.EXP = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.THR = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.panel3 = new System.Windows.Forms.Panel();
+            this.IntrisicsB = new System.Windows.Forms.Button();
+            this.IntrisicsL = new System.Windows.Forms.Label();
             this.ResolutionCB = new System.Windows.Forms.ComboBox();
             this.CodecL = new System.Windows.Forms.Label();
             this.ResolutionLL = new System.Windows.Forms.Label();
@@ -246,6 +248,8 @@
             // 
             this.panel3.BackColor = System.Drawing.SystemColors.WindowFrame;
             this.panel3.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.panel3.Controls.Add(this.IntrisicsB);
+            this.panel3.Controls.Add(this.IntrisicsL);
             this.panel3.Controls.Add(this.ResolutionCB);
             this.panel3.Controls.Add(this.CodecL);
             this.panel3.Controls.Add(this.ResolutionLL);
@@ -254,6 +258,26 @@
             this.panel3.Name = "panel3";
             this.panel3.Size = new System.Drawing.Size(311, 205);
             this.panel3.TabIndex = 2;
+            // 
+            // IntrisicsB
+            // 
+            this.IntrisicsB.Location = new System.Drawing.Point(163, 105);
+            this.IntrisicsB.Name = "IntrisicsB";
+            this.IntrisicsB.Size = new System.Drawing.Size(121, 23);
+            this.IntrisicsB.TabIndex = 9;
+            this.IntrisicsB.Text = "Load...";
+            this.IntrisicsB.UseVisualStyleBackColor = true;
+            // 
+            // IntrisicsL
+            // 
+            this.IntrisicsL.AutoSize = true;
+            this.IntrisicsL.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.IntrisicsL.ForeColor = System.Drawing.Color.Honeydew;
+            this.IntrisicsL.Location = new System.Drawing.Point(5, 105);
+            this.IntrisicsL.Name = "IntrisicsL";
+            this.IntrisicsL.Size = new System.Drawing.Size(124, 17);
+            this.IntrisicsL.TabIndex = 4;
+            this.IntrisicsL.Text = "Camera Intrisics";
             // 
             // ResolutionCB
             // 
@@ -270,7 +294,6 @@
             this.ResolutionCB.Name = "ResolutionCB";
             this.ResolutionCB.Size = new System.Drawing.Size(121, 24);
             this.ResolutionCB.TabIndex = 3;
-  
             // 
             // CodecL
             // 
@@ -288,7 +311,7 @@
             this.ResolutionLL.AutoSize = true;
             this.ResolutionLL.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.ResolutionLL.ForeColor = System.Drawing.Color.Honeydew;
-            this.ResolutionLL.Location = new System.Drawing.Point(25, 64);
+            this.ResolutionLL.Location = new System.Drawing.Point(44, 67);
             this.ResolutionLL.Name = "ResolutionLL";
             this.ResolutionLL.Size = new System.Drawing.Size(85, 17);
             this.ResolutionLL.TabIndex = 1;
@@ -299,7 +322,7 @@
             this.CodecLL.AutoSize = true;
             this.CodecLL.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.CodecLL.ForeColor = System.Drawing.Color.Honeydew;
-            this.CodecLL.Location = new System.Drawing.Point(52, 36);
+            this.CodecLL.Location = new System.Drawing.Point(76, 36);
             this.CodecLL.Name = "CodecLL";
             this.CodecLL.Size = new System.Drawing.Size(53, 17);
             this.CodecLL.TabIndex = 0;
@@ -362,5 +385,7 @@
         private System.Windows.Forms.Label CodecL;
         private System.Windows.Forms.Label ResolutionLL;
         private System.Windows.Forms.Label CodecLL;
+        private System.Windows.Forms.Button IntrisicsB;
+        private System.Windows.Forms.Label IntrisicsL;
     }
 }

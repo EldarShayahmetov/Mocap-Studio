@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Windows.Forms;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,17 +25,18 @@ namespace MoCap2
         private Object boxLock = new Object();
 
         #region Image fields
+        Size _size = new Size(640, 480);
         Mat _m;
+        Mat _undist;
         Mat _b;
         Mat _gray;
         Mat _bin;
         Mat _blobs;
+        Mat _resized;
         Bitmap _niBin;
         Graphics _graphics;
-
         Stopwatch sw;
         #endregion
-
 
         protected double _fps;
         protected double _exposure;
@@ -48,9 +50,18 @@ namespace MoCap2
         protected Image _labelImg;
         protected Image _noCapture;
         protected VideoCapture _vidCapture;
-        private int _width=640;
-        private int _height=480;
+        private int _width = 640;
+        private int _height = 480;
         private bool _On = false;
+        private BlobDetector _blobDetector;
+        private bool _drawBlobs = true;
+        private int _deviceNum;
+        private bool _intrisicsLoaded = false;
+
+        #region Calibration Data
+        private Mat _cameraMatrix;
+        private Mat _distCoeffs;
+        #endregion
 
         protected string[] _codecs;
         protected int[] _widths;
@@ -59,6 +70,7 @@ namespace MoCap2
 
         public Camera(int deviceNum)
         {
+            _deviceNum = deviceNum;
             _vidCapture = new VideoCapture(deviceNum);
             _vidCapture.ImageGrabbed += ProcessFrame;
 
@@ -73,18 +85,45 @@ namespace MoCap2
         private void InitInnersNeed()
         {
             _m = new Mat();
+            _undist = new Mat();
             _b = new Mat();
             _bin = new Mat();
             _gray = new Mat();
             _blobs = new Mat();
+            _resized = new Mat();
             _niBin = new Bitmap(_width, _height);
+            _cameraMatrix = new Mat();
+            _distCoeffs = new Mat();
 
             _noCapture = Image.FromFile("Assets\\NoIcon.png");
             _graphics = Graphics.FromImage(_niBin);
+
+            _blobDetector = new BlobDetector(_bin, _deviceNum, _cameraMatrix,_distCoeffs);
         }
 
 
         #region Getters and Setters
+
+        public Mat CameraMatrix{
+            get { return _cameraMatrix; }
+            set { _cameraMatrix = value; }
+            }
+
+        public Mat DistCoeffs
+        {
+            set { _distCoeffs = value; }
+            get { return _distCoeffs; }
+        }
+
+        public BlobDetector BlobDet{
+            get{ return _blobDetector; }
+            }
+
+        public bool DrawBlobs
+        {
+            get { return _drawBlobs; }
+            set { _drawBlobs = value; }
+        }
 
         public string Resolution
         { //CHANGE CHANGE CHANGE
@@ -174,7 +213,7 @@ namespace MoCap2
                     PauseCapture();
                     Bitmap btm = new Bitmap(_noCapture);
                     Thread.Sleep(100);
-                    OnCaptured?.Invoke(new BitmapEventArgs(btm, 0));
+                    OnCaptured?.Invoke(new BitmapEventArgs(btm, 0, _deviceNum));
                 }
             }
         }
@@ -232,6 +271,39 @@ namespace MoCap2
         }
 
 
+        public void LoadIntrisics(string path)
+        {
+            FileStorage fs = new FileStorage(path, FileStorage.Mode.Read);
+          
+            try
+            {
+                fs["distCoeffs"].ReadMat(_distCoeffs);
+                fs["cameraMatrix"].ReadMat(_cameraMatrix);
+
+                Matrix<double> cameraMatrix = new Matrix<double>(_cameraMatrix.Rows, _cameraMatrix.Cols, _cameraMatrix.NumberOfChannels);
+                _cameraMatrix.CopyTo(cameraMatrix);// Cope Camera Mat to Matrx
+
+                Matrix<double> cameraMatrixM = new Matrix<double>(cameraMatrix.Rows, cameraMatrix.Cols, cameraMatrix.NumberOfChannels);
+                cameraMatrix.CopyTo(cameraMatrixM);
+
+                double fx = cameraMatrixM.Data[0, 0];
+                double fy = cameraMatrixM.Data[1, 1];
+                double cx = cameraMatrixM.Data[0, 2];
+                double cy = cameraMatrixM.Data[1, 2];
+
+                _blobDetector.SetFocalPrincipal(fx, fy, cx, cy);
+
+                _intrisicsLoaded = true;
+            }
+            catch
+            {
+                MessageBox.Show("Cant Load Intrisics.","Error!");
+            }
+         
+            fs.ReleaseAndGetString();
+        }
+            
+
 
         protected virtual void LoadSettingsEEPROM()
         {
@@ -259,17 +331,29 @@ namespace MoCap2
         private void ProcessFrame(object sender, EventArgs e)
         {
 
-                _vidCapture.Retrieve(_m);
+             _vidCapture.Retrieve(_m);
+
+            if (_intrisicsLoaded)
+            {
+                CvInvoke.Undistort(_m, _undist, _cameraMatrix, _distCoeffs);
+                CvInvoke.CvtColor(_undist, _gray, ColorConversion.Bgr2Gray);
+            }
+            else
+            {
                 CvInvoke.CvtColor(_m, _gray, ColorConversion.Bgr2Gray);
-                CvInvoke.CvtColor(_m, _gray, ColorConversion.Bgr2Gray);
-                CvInvoke.Threshold(_gray, _bin, _threshold, 255, ThresholdType.Binary);
-               _graphics.DrawImage(_bin.Bitmap, new PointF(0, 0));
+            }
+
+             CvInvoke.Threshold(_gray, _bin, _threshold, 255, ThresholdType.Binary);
+            _blobDetector.FindBlobs(_drawBlobs, _intrisicsLoaded);
+
+            CvInvoke.Resize(_bin, _resized, _size);
+           _graphics.DrawImage(_resized.Bitmap, new PointF(0, 0));
 
             if (sw != null)
              Fps = 1000 / sw.ElapsedMilliseconds;
             sw = Stopwatch.StartNew();
 
-            OnCaptured?.Invoke(new BitmapEventArgs(_niBin, (int)_fps));
+            OnCaptured?.Invoke(new BitmapEventArgs(_niBin, (int)_fps, _deviceNum));
         }
 
 
