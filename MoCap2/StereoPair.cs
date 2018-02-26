@@ -6,6 +6,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
 
+
+using Emgu.CV;
+using Emgu.CV.Structure;
+using Emgu.CV.Util;
+using Emgu.CV.Features2D;
+using Emgu.CV.CvEnum;
+
+
 namespace MoCap2
 {
     enum SPMode
@@ -20,6 +28,7 @@ namespace MoCap2
         public delegate void ModeChanged();
         public event ModeChanged OnModeChanged;
 
+        private StereoPairCalibration _calibration;
 
         private Camera _camL;
         private Camera _camR;
@@ -27,6 +36,10 @@ namespace MoCap2
         private SPMode _mode;
         private Image _modeImage;
         object _locker = new object();
+
+        Mat f = new Mat();
+        Mat r = new Mat();
+        Mat t = new Mat();
 
 
         public StereoPair(Camera camL, Camera camR)
@@ -37,6 +50,9 @@ namespace MoCap2
             camR.BlobDet.OnBlobDetected += SyncCameras;
             _stereoPoints[0] = new PointF[1];
             _stereoPoints[1] = new PointF[1];
+
+            _calibration = new StereoPairCalibration(_camL.CameraMatrix, _camR.CameraMatrix, _camL.DistCoeffs, _camR.DistCoeffs, camL.ResolutionSize);
+
             Mode = SPMode.View;
         }
 
@@ -70,7 +86,15 @@ namespace MoCap2
             }else if(_mode == SPMode.Calibration){
 
                 //Calibrate class realisation
+                if (_calibration.BufferData(_stereoPoints))
+                {
 
+                }
+                else
+                {
+                    _calibration.StartCalibration(out f, out r, out t);
+                    _mode = SPMode.View;
+                }
 
 
             } else if(_mode == SPMode.View)

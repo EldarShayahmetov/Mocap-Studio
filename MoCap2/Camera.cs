@@ -44,7 +44,7 @@ namespace MoCap2
         protected double _codec;
         protected int[] _thrBounds;
         protected double[] _expBounds;
-        protected Size[] _resolutions;
+        protected Size _resolution = new Size(640, 480);
 
         protected string _name;
         protected Image _labelImg;
@@ -143,6 +143,11 @@ namespace MoCap2
                         return "640x480";
                 }
             }
+        }
+
+        public Size ResolutionSize
+        {
+            get { return _resolution; }
         }
 
         public double Codec
@@ -246,6 +251,7 @@ namespace MoCap2
 
             _width = width;
             _height = height;
+            _resolution = new Size(_width, _height);
             int fcc = VideoWriter.Fourcc('M', 'J', 'P', 'G');
             _vidCapture.SetCaptureProperty(CapProp.Fps, 90);//Max FPS
             _vidCapture.SetCaptureProperty(CapProp.FourCC, fcc);
