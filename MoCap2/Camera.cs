@@ -22,7 +22,7 @@ namespace MoCap2
         public delegate void Captured(BitmapEventArgs bitmap);
         public event Captured OnCaptured;
 
-        private Object boxLock = new Object();
+        private StereoPairCalibration _calibration;
 
         #region Image fields
         Size _size = new Size(640, 480);
@@ -57,6 +57,7 @@ namespace MoCap2
         private bool _drawBlobs = true;
         private int _deviceNum;
         private bool _intrisicsLoaded = false;
+        private Bitmap _calibImg;
 
         #region Calibration Data
         private Mat _cameraMatrix;
@@ -103,6 +104,18 @@ namespace MoCap2
 
 
         #region Getters and Setters
+
+        public StereoPairCalibration Calibration
+        {
+            get { return _calibration; }
+            set { _calibration = value; }
+        }
+
+        public Bitmap CalibImg
+        {
+            get { return _calibImg; }
+            set { _calibImg = value; }
+        }
 
         public Mat CameraMatrix{
             get { return _cameraMatrix; }
@@ -352,8 +365,19 @@ namespace MoCap2
              CvInvoke.Threshold(_gray, _bin, _threshold, 255, ThresholdType.Binary);
             _blobDetector.FindBlobs(_drawBlobs, _intrisicsLoaded);
 
-            CvInvoke.Resize(_bin, _resized, _size);
-           _graphics.DrawImage(_resized.Bitmap, new PointF(0, 0));
+
+
+
+        //    CvInvoke.Resize(_bin, _resized, _size);
+           _graphics.DrawImage(_bin.Bitmap, new PointF(0, 0));
+
+
+
+
+            if (_calibration != null)
+            {
+                _graphics.DrawImage(_calibration.GetCalibImage(_deviceNum), new PointF(0, 0));
+            }
 
             if (sw != null)
              Fps = 1000 / sw.ElapsedMilliseconds;

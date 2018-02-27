@@ -50,10 +50,7 @@ namespace MoCap2
             camR.BlobDet.OnBlobDetected += SyncCameras;
             _stereoPoints[0] = new PointF[1];
             _stereoPoints[1] = new PointF[1];
-
-            _calibration = new StereoPairCalibration(_camL.CameraMatrix, _camR.CameraMatrix, _camL.DistCoeffs, _camR.DistCoeffs, camL.ResolutionSize);
-
-            Mode = SPMode.View;
+            Mode = SPMode.Calibration;
         }
 
 
@@ -85,10 +82,17 @@ namespace MoCap2
 
             }else if(_mode == SPMode.Calibration){
 
+                if (_calibration == null)
+                {
+                    _calibration = new StereoPairCalibration(_camL.CameraMatrix, _camR.CameraMatrix, _camL.DistCoeffs, _camR.DistCoeffs, _camL.ResolutionSize);
+                    _camL.Calibration = _calibration;
+                    _camR.Calibration = _calibration;
+                }
+
                 //Calibrate class realisation
                 if (_calibration.BufferData(_stereoPoints))
                 {
-
+                 
                 }
                 else
                 {
