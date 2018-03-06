@@ -62,6 +62,7 @@ namespace MoCap2
         #region Calibration Data
         private Mat _cameraMatrix;
         private Mat _distCoeffs;
+        private Mat _projMat;
         #endregion
 
         protected string[] _codecs;
@@ -96,14 +97,20 @@ namespace MoCap2
             _cameraMatrix = new Mat();
             _distCoeffs = new Mat();
 
+            _blobDetector = new BlobDetector(_bin, _deviceNum, _cameraMatrix, _distCoeffs);
+
             _noCapture = Image.FromFile("Assets\\NoIcon.png");
             _graphics = Graphics.FromImage(_niBin);
-
-            _blobDetector = new BlobDetector(_bin, _deviceNum, _cameraMatrix,_distCoeffs);
         }
 
 
         #region Getters and Setters
+
+        public Mat ProjMat
+        {
+            get { return _projMat;}
+            set { _projMat = value; }
+        }
 
         public StereoPairCalibration Calibration
         {
@@ -296,6 +303,7 @@ namespace MoCap2
           
             try
             {
+
                 fs["distCoeffs"].ReadMat(_distCoeffs);
                 fs["cameraMatrix"].ReadMat(_cameraMatrix);
 
@@ -354,8 +362,9 @@ namespace MoCap2
 
             if (_intrisicsLoaded)
             {
-                CvInvoke.Undistort(_m, _undist, _cameraMatrix, _distCoeffs);
-                CvInvoke.CvtColor(_undist, _gray, ColorConversion.Bgr2Gray);
+                //  CvInvoke.Undistort(_m, _undist, _cameraMatrix, _distCoeffs);
+                //  CvInvoke.CvtColor(_undist, _gray, ColorConversion.Bgr2Gray);
+                CvInvoke.CvtColor(_m, _gray, ColorConversion.Bgr2Gray);
             }
             else
             {

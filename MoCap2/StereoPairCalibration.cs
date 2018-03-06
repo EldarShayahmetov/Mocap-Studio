@@ -18,7 +18,7 @@ namespace MoCap2
     {
         private MCvPoint3D32f[][] _wand3DPoints;
         private float _wandWidht = 500;
-        private int _pointsBuffer = 100;
+        private int _pointsBuffer = 400;
         private int _current = 0;
         private PointF[][] _wandPointsL;
         private PointF[][] _wandPointsR;
@@ -29,10 +29,21 @@ namespace MoCap2
         private Bitmap _calibImgR;
         private Graphics _calibGraphicsL;
         private Graphics _calibGraphicsR;
-        private Pen _linesPen = new Pen(Color.FromArgb(20, Color.Green), 2);
+        private Pen _linesPen = new Pen(Color.FromArgb(20, Color.Green), 1);
         private Font drawFont = new Font("Arial", 16);
         SolidBrush drawBrush = new SolidBrush(Color.Green);
 
+        private float _cxL, _cyL, _cxR, _cyR;
+
+
+
+        public void SetOffset(double cxL, double cyL, double cxR, double cyR)
+        {
+                _cxL = (float)cxL;
+                _cyL = (float)cyL;
+                _cxR = (float)cxR;
+                _cyR = (float)cyR;
+        }
 
         public Bitmap GetCalibImage(int deviceNum)
         {
@@ -83,20 +94,20 @@ namespace MoCap2
 
         public bool BufferData(PointF[][] wandPoints)
         {
-            ///???
             if (wandPoints[0].Length == _windMarkersCount && wandPoints[1].Length == _windMarkersCount)
             {
-
-                    _wandPointsL[_current] = wandPoints[0];
+            
+                _wandPointsL[_current] = wandPoints[0];
                 _wandPointsR[_current] = wandPoints[1];
 
-                // _calibGraphicsL.DrawLine(_linesPen, wandPoints[0][0], wandPoints[0][1]);
-                _calibGraphicsL.Clear(Color.FromArgb(0,Color.Black));
-                _calibGraphicsL.DrawString("1", drawFont, drawBrush, wandPoints[0][0]);
-                _calibGraphicsL.DrawString("2", drawFont, drawBrush, wandPoints[0][1]);
-                _calibGraphicsL.DrawString("3", drawFont, drawBrush, wandPoints[0][2]);
-                //  _calibGraphicsL.DrawLine(_linesPen, wandPoints[0][1], wandPoints[0][2]);
-                _calibGraphicsR.DrawRectangle(_linesPen, 200, 200, 100, 100);
+                //_calibGraphicsL.Clear(Color.FromArgb(0, Color.Black));
+                //_calibGraphicsR.Clear(Color.FromArgb(0, Color.Black));
+
+                _calibGraphicsL.DrawLine(_linesPen, new PointF(wandPoints[0][0].X +_cxL, wandPoints[0][0].Y +_cyL), new PointF(wandPoints[0][1].X + _cxL, wandPoints[0][1].Y + _cyL));
+                _calibGraphicsL.DrawLine(_linesPen, new PointF(wandPoints[0][1].X + _cxL, wandPoints[0][1].Y + _cyL), new PointF(wandPoints[0][2].X + _cxL, wandPoints[0][2].Y + _cyL));
+
+                _calibGraphicsR.DrawLine(_linesPen, new PointF(wandPoints[1][0].X + _cxR, wandPoints[1][0].Y + _cyR), new PointF(wandPoints[1][1].X + _cxR, wandPoints[1][1].Y + _cyR));
+                _calibGraphicsR.DrawLine(_linesPen, new PointF(wandPoints[1][1].X + _cxR, wandPoints[1][1].Y + _cyR), new PointF(wandPoints[1][2].X + _cxR, wandPoints[1][2].Y + _cyR));
 
                 if (_current < _pointsBuffer - 1)
                 {
@@ -115,15 +126,42 @@ namespace MoCap2
         }
 
 
-        public void StartCalibration(out Mat f, out Mat r, out Mat t)
+        public void StartCalibration(out Mat p, out Mat r, out Mat t)
         {
-             f = new Mat();
+            p = new Mat();
             r = new Mat();
             t = new Mat();
             Mat e = new Mat();
 
-            CvInvoke.StereoCalibrate(_wand3DPoints, _wandPointsL, _wandPointsR, _cameraMatrix0, _distCoeffs0, _cameraMatrix1, _distCoeffs1, _camRes, r, t, e, f,
-    CalibType.FixIntrinsic, new MCvTermCriteria(30, 0.1));
+
+            List<PointF> wpLList = new List<PointF>();
+            List<PointF> wpRList = new List<PointF>();
+
+            for (int i = 0; i<_pointsBuffer; i++)
+            {
+                wpLList.Add(_wandPointsL[i][0]);
+                wpLList.Add(_wandPointsL[i][1]);
+                wpLList.Add(_wandPointsL[i][2]);
+
+                wpRList.Add(_wandPointsR[i][0]);
+                wpRList.Add(_wandPointsR[i][1]);
+                wpRList.Add(_wandPointsR[i][2]);
+
+            }
+
+
+           
+
+            VectorOfPointF vpL = new VectorOfPointF(wpLList.ToArray());
+            VectorOfPointF vpR = new VectorOfPointF(wpRList.ToArray());
+
+            e = CvInvoke.FindEssentialMat(vpL, vpR, _cameraMatrix0);
+
+            Matrix<double> Ess = new Matrix<double>(e.Rows, e.Cols, e.NumberOfChannels);
+            e.CopyTo(Ess);
+
+            FivePoint.RecoverPose(e,wpLList.ToArray(),wpRList.ToArray(),_cameraMatrix0,100,out r, out t, out p);
+
         }
 
     }

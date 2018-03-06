@@ -35,11 +35,13 @@ namespace MoCap2
         private PointF[][] _stereoPoints = new PointF[2][];
         private SPMode _mode;
         private Image _modeImage;
+        private float _cx, _cy;
         object _locker = new object();
 
-        Mat f = new Mat();
+        Mat p = new Mat();
         Mat r = new Mat();
         Mat t = new Mat();
+
 
 
         public StereoPair(Camera camL, Camera camR)
@@ -50,7 +52,7 @@ namespace MoCap2
             camR.BlobDet.OnBlobDetected += SyncCameras;
             _stereoPoints[0] = new PointF[1];
             _stereoPoints[1] = new PointF[1];
-            Mode = SPMode.Calibration;
+            Mode = SPMode.View;
         }
 
 
@@ -84,9 +86,12 @@ namespace MoCap2
 
                 if (_calibration == null)
                 {
+                   
                     _calibration = new StereoPairCalibration(_camL.CameraMatrix, _camR.CameraMatrix, _camL.DistCoeffs, _camR.DistCoeffs, _camL.ResolutionSize);
+                    _calibration.SetOffset(_camL.BlobDet.Cx, _camL.BlobDet.Cy, _camR.BlobDet.Cx, _camR.BlobDet.Cy);
                     _camL.Calibration = _calibration;
                     _camR.Calibration = _calibration;
+                   
                 }
 
                 //Calibrate class realisation
@@ -96,8 +101,8 @@ namespace MoCap2
                 }
                 else
                 {
-                    _calibration.StartCalibration(out f, out r, out t);
-                    _mode = SPMode.View;
+                    _calibration.StartCalibration(out p, out r, out t);
+                    Mode = SPMode.View;
                 }
 
 
@@ -125,6 +130,42 @@ namespace MoCap2
         public Image ModeImg
         {
             get { return _modeImage; }
+        }
+
+        public void ProjMatCalc()
+        {
+            Mat RTstereo = new Mat(3, 4, DepthType.Cv64F, 1); // var for after HConcat
+            CvInvoke.HConcat(r, t, RTstereo); // concat [R|T]
+
+            double[,] I = { { 1, 0, 0, 0}, // Identity
+                            { 0, 1, 0, 0},
+                            { 0, 0, 1, 0 }};
+
+            Matrix<double> RTML = new Matrix<double>(I);
+            Matrix<double> RTMR = new Matrix<double>(RTstereo.Rows, RTstereo.Cols, RTstereo.NumberOfChannels);
+            RTstereo.CopyTo(RTMR);
+
+            Matrix<double> cameraMatrixL = new Matrix<double>(_camL.CameraMatrix.Rows, _camL.CameraMatrix.Cols, _camL.CameraMatrix.NumberOfChannels);
+            _camL.CameraMatrix.CopyTo(cameraMatrixL);// Cope Camera Mat to Matrx
+            Matrix<double> cameraMatrixR = new Matrix<double>(_camR.CameraMatrix.Rows, _camR.CameraMatrix.Cols, _camR.CameraMatrix.NumberOfChannels);
+            _camR.CameraMatrix.CopyTo(cameraMatrixR);
+
+            /*
+            Matrix<double> Rster = new Matrix<double>(r.Rows, r.Cols, r.NumberOfChannels); // Rster and Tster Matrix
+            r.CopyTo(Rster);
+            Matrix<double> Tster = new Matrix<double>(t.Rows, t.Cols, t.NumberOfChannels);
+            t.CopyTo(Tster);
+            */
+
+            Matrix<double> projMatrixL = cameraMatrixL * RTML;
+            Matrix<double> projMatrixR = cameraMatrixR * RTMR;
+
+            _camL.ProjMat = new Mat();
+            _camR.ProjMat = new Mat();
+
+            _camL.ProjMat = projMatrixL.Mat;
+            _camR.ProjMat = projMatrixR.Mat;
+
         }
 
     }

@@ -28,7 +28,19 @@ namespace MoCap2
         private Bgr _dColor = new Bgr(129, 64, 256);
         private Mat _cameraMatrix;
         private Mat _distCoeffs;
-        double _fx, _fy, _cx, _cy;
+        double _fx, _fy;
+        double _cx; 
+        double _cy;
+
+        public double Cx
+        {
+            get { return _cx; }
+        }
+
+        public double Cy
+        {
+            get { return _cy; }
+        }
 
         private int _deviceNum;
 

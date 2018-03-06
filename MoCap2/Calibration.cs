@@ -13,6 +13,8 @@ namespace MoCap2
     public partial class Calibration : Form
     {
 
+        private CamContainer camCont;
+
         private static Calibration _instance;
 
         public static Calibration Instance
@@ -28,11 +30,23 @@ namespace MoCap2
         public Calibration()
         {
             InitializeComponent();
+            camCont = CamContainer.GetReference();
+
+            StartB.Click += StartCalib;
         }
 
         private void Calibration_FormClosed(object sender, FormClosedEventArgs e)
         {
             _instance = null;
         }
+
+        private void StartCalib(object sender, EventArgs e)
+        {
+            if (camCont.GetCameraByNum(0).CameraMatrix.Rows != 0 && camCont.GetCameraByNum(1).CameraMatrix.Rows != 0)
+                camCont.GetStereopair().Mode = SPMode.Calibration;
+            else
+                MessageBox.Show("Cameras Intrisics not loaded! Please, load it before calibration...", "Attention!", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+        }
+
     }
 }
