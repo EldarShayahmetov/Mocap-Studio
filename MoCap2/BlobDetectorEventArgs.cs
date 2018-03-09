@@ -9,7 +9,7 @@ using System.Drawing;
 namespace MoCap2
 {
 
-    class BlobDetectorEventArgs: EventArgs
+    public class BlobDetectorEventArgs: EventArgs
     {
         public PointF[] _points { get; private set; }
         public int _deviceNum { get; private set; }

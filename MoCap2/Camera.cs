@@ -17,7 +17,7 @@ using System.Drawing;
 namespace MoCap2
 {
 
-    class Camera
+    public class Camera
     {
         public delegate void Captured(BitmapEventArgs bitmap);
         public event Captured OnCaptured;

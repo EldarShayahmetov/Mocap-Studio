@@ -14,7 +14,7 @@ using System.Drawing;
 
 namespace MoCap2
 {
-    class BlobDetector
+    public class BlobDetector
     {
 
         public delegate void BlobDetected(BlobDetectorEventArgs points);
@@ -58,9 +58,9 @@ namespace MoCap2
             _detectorParams.FilterByInertia = false;
             _detectorParams.FilterByConvexity = false;
             _detectorParams.FilterByArea = false;
-            _detectorParams.FilterByCircularity = true;
-            _detectorParams.MaxCircularity = 1f;
-            _detectorParams.MinCircularity = 0.8f;
+            _detectorParams.FilterByCircularity = false;
+       //     _detectorParams.MaxCircularity = 1f;
+          //  _detectorParams.MinCircularity = 0.4f;
             _detectorParams.blobColor = 255;
 
             _blobDetector = new SimpleBlobDetector(_detectorParams);
@@ -103,8 +103,8 @@ namespace MoCap2
 
                     for (int i = 0; i < pu.Length; i++)
                     {
-                       _points[i].X = pu[i].X * (float)_fx;
-                       _points[i].Y = pu[i].Y * (float)_fy;
+                       _points[i].X = pu[i].X * (float)_fx + (float)_cx;
+                       _points[i].Y = pu[i].Y * (float)_fy + (float)_cy;
                     }
 
                 }

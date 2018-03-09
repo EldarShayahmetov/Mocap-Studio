@@ -43,7 +43,10 @@ namespace MoCap2
         private void StartCalib(object sender, EventArgs e)
         {
             if (camCont.GetCameraByNum(0).CameraMatrix.Rows != 0 && camCont.GetCameraByNum(1).CameraMatrix.Rows != 0)
+            {
                 camCont.GetStereopair().Mode = SPMode.Calibration;
+                camCont.GetStereopair().PointsBuffer = Int32.Parse(PointsBuffTB.Text);
+            }
             else
                 MessageBox.Show("Cameras Intrisics not loaded! Please, load it before calibration...", "Attention!", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
         }

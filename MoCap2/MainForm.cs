@@ -47,5 +47,10 @@ namespace MoCap2
         {
             ShowForm(Calibration.Instance);
         }
+
+        private void dToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ShowForm(Scene3D.Instance);
+        }
     }
 }

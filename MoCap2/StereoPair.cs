@@ -16,17 +16,22 @@ using Emgu.CV.CvEnum;
 
 namespace MoCap2
 {
-    enum SPMode
+
+    public enum SPMode
     {
         View,
         Calibration,
         Triangulation
     }
 
-    class StereoPair
+    public class StereoPair
     {
         public delegate void ModeChanged();
         public event ModeChanged OnModeChanged;
+
+        public delegate void Triangulated(TriangulationEventArgs args);
+        public event Triangulated OnTriangulated;
+
 
         private StereoPairCalibration _calibration;
 
@@ -35,12 +40,15 @@ namespace MoCap2
         private PointF[][] _stereoPoints = new PointF[2][];
         private SPMode _mode;
         private Image _modeImage;
-        private float _cx, _cy;
+        private double _cx, _cy, _fx, _fy;
         object _locker = new object();
+        private int _pointsBuffer = 200;
 
         Mat p = new Mat();
+        Mat pI = new Mat();
         Mat r = new Mat();
         Mat t = new Mat();
+        Matrix<double> pose;
 
 
 
@@ -80,14 +88,14 @@ namespace MoCap2
 
             if(_mode == SPMode.Triangulation)
             {
-                //Triangulate class realisation
+                Triangulate();
 
             }else if(_mode == SPMode.Calibration){
 
                 if (_calibration == null)
                 {
                    
-                    _calibration = new StereoPairCalibration(_camL.CameraMatrix, _camR.CameraMatrix, _camL.DistCoeffs, _camR.DistCoeffs, _camL.ResolutionSize);
+                    _calibration = new StereoPairCalibration(_camL.CameraMatrix, _camR.CameraMatrix, _camL.DistCoeffs, _camR.DistCoeffs, _camL.ResolutionSize, _pointsBuffer);
                     _calibration.SetOffset(_camL.BlobDet.Cx, _camL.BlobDet.Cy, _camR.BlobDet.Cx, _camR.BlobDet.Cy);
                     _camL.Calibration = _calibration;
                     _camR.Calibration = _calibration;
@@ -101,8 +109,19 @@ namespace MoCap2
                 }
                 else
                 {
-                    _calibration.StartCalibration(out p, out r, out t);
-                    Mode = SPMode.View;
+                    _calibration.StartCalibration(out p, out r, out t, out pose, out _fx, out _fy, out _cx, out _cy);
+
+                    double[,] I = { { 1, 0, 0, 0}, // Identity
+                            { 0, 1, 0, 0},
+                            { 0, 0, 1, 0 }};
+
+                    Matrix<double> pIdentity = new Matrix<double>(I);
+                    pI = pIdentity.Mat;
+
+                    _calibration = null;
+                    _camL.Calibration = null;
+                    _camR.Calibration = null;
+                    Mode = SPMode.Triangulation;
                 }
 
 
@@ -132,41 +151,93 @@ namespace MoCap2
             get { return _modeImage; }
         }
 
-        public void ProjMatCalc()
+
+        private void Triangulate()
         {
-            Mat RTstereo = new Mat(3, 4, DepthType.Cv64F, 1); // var for after HConcat
-            CvInvoke.HConcat(r, t, RTstereo); // concat [R|T]
+            Mat out4DPoints = new Mat();
 
-            double[,] I = { { 1, 0, 0, 0}, // Identity
-                            { 0, 1, 0, 0},
-                            { 0, 0, 1, 0 }};
+            PointF[][] tempStereoPoints = new PointF[2][];
+            tempStereoPoints[0] = new PointF[_stereoPoints[0].Length];
+            tempStereoPoints[1] = new PointF[_stereoPoints[1].Length];
+            for (int i = 0;i<_stereoPoints[0].Length; i++)
+            {
+                tempStereoPoints[0][i] = _stereoPoints[0][i];
+                tempStereoPoints[1][i] = _stereoPoints[1][i];
+            }
 
-            Matrix<double> RTML = new Matrix<double>(I);
-            Matrix<double> RTMR = new Matrix<double>(RTstereo.Rows, RTstereo.Cols, RTstereo.NumberOfChannels);
-            RTstereo.CopyTo(RTMR);
 
-            Matrix<double> cameraMatrixL = new Matrix<double>(_camL.CameraMatrix.Rows, _camL.CameraMatrix.Cols, _camL.CameraMatrix.NumberOfChannels);
-            _camL.CameraMatrix.CopyTo(cameraMatrixL);// Cope Camera Mat to Matrx
-            Matrix<double> cameraMatrixR = new Matrix<double>(_camR.CameraMatrix.Rows, _camR.CameraMatrix.Cols, _camR.CameraMatrix.NumberOfChannels);
-            _camR.CameraMatrix.CopyTo(cameraMatrixR);
+            for (int i = 0; i < _stereoPoints[0].Length; i++)
+            {
+                tempStereoPoints[0][i].X = (tempStereoPoints[0][i].X - (float)_cx) / (float)_fx;
+                tempStereoPoints[0][i].Y= (tempStereoPoints[0][i].Y - (float)_cy) / (float)_fy;
 
-            /*
-            Matrix<double> Rster = new Matrix<double>(r.Rows, r.Cols, r.NumberOfChannels); // Rster and Tster Matrix
-            r.CopyTo(Rster);
-            Matrix<double> Tster = new Matrix<double>(t.Rows, t.Cols, t.NumberOfChannels);
-            t.CopyTo(Tster);
-            */
+                tempStereoPoints[1][i].X = (tempStereoPoints[0][i].X - (float)_cx) / (float)_fx;
+                tempStereoPoints[1][i].Y = (tempStereoPoints[0][i].Y - (float)_cy) / (float)_fy;
+            }
 
-            Matrix<double> projMatrixL = cameraMatrixL * RTML;
-            Matrix<double> projMatrixR = cameraMatrixR * RTMR;
+            double[,] p1 = new double[tempStereoPoints[0].Length, 2];
+            double[,] p2 = new double[tempStereoPoints[1].Length, 2];
 
-            _camL.ProjMat = new Mat();
-            _camR.ProjMat = new Mat();
+            for (int i = 0; i < _stereoPoints[0].Length; i++)
+            {
+                p1[i, 0] = (double)tempStereoPoints[0][i].X;
+                p1[i, 1] = (double)tempStereoPoints[0][i].Y;
 
-            _camL.ProjMat = projMatrixL.Mat;
-            _camR.ProjMat = projMatrixR.Mat;
+                p2[i, 0] = (double)tempStereoPoints[1][i].X;
+                p2[i, 1] = (double)tempStereoPoints[1][i].Y;
+            }
 
+            Matrix<double> points1 = new Matrix<double>(p1);
+            Matrix<double> points2 = new Matrix<double>(p2);
+
+            Matrix<double> temp1 = new Matrix<double>(points1.Cols, points1.Rows);
+            Matrix<double> temp2 = new Matrix<double>(points2.Cols, points2.Rows);
+
+            CvInvoke.Transpose(points1, temp1);
+            CvInvoke.Transpose(points2, temp2);
+            points1 = temp1;
+            points2 = temp2;
+
+            CvInvoke.TriangulatePoints(pI, p, points1, points2, out4DPoints);
+
+            Matrix<double> out4DMatrix = new Matrix<double>(out4DPoints.Rows, out4DPoints.Cols, out4DPoints.NumberOfChannels);
+            out4DPoints.CopyTo(out4DMatrix);
+
+
+            Matrix<double> x = new Matrix<double>(1, out4DMatrix.Cols);
+            Matrix<double> y = new Matrix<double>(1, out4DMatrix.Cols);
+            Matrix<double> z = new Matrix<double>(1, out4DMatrix.Cols);
+            Matrix<double> w = new Matrix<double>(1, out4DMatrix.Cols);
+            CvInvoke.Divide(out4DMatrix.GetRow(0), out4DMatrix.GetRow(3), x);
+            CvInvoke.Divide(out4DMatrix.GetRow(1), out4DMatrix.GetRow(3), y);
+            CvInvoke.Divide(out4DMatrix.GetRow(2), out4DMatrix.GetRow(3), z);
+            CvInvoke.Divide(out4DMatrix.GetRow(3), out4DMatrix.GetRow(3), w);
+
+
+            Matrix<double> tempxy = new Matrix<double>(2, out4DMatrix.Cols);
+            Matrix<double> tempzw = new Matrix<double>(2, out4DMatrix.Cols);
+            tempxy = x.ConcateVertical(y);
+            tempzw = z.ConcateVertical(w);
+            out4DMatrix = tempxy.ConcateVertical(tempzw);
+
+                            double[,] I = { { 1, 0, 0, 0}, // Identity
+                            { 0, -1, 0, 0},
+                            { 0, 0, -1, 0 },
+                             {0,0,0,1 } };
+
+                Matrix<double> glTransform = new Matrix<double>(I);
+
+            out4DMatrix = glTransform * out4DMatrix;
+
+            OnTriangulated?.Invoke(new TriangulationEventArgs(out4DMatrix, pose));
         }
 
+
+
+        public int PointsBuffer
+        {
+            get { return _pointsBuffer; }
+            set { _pointsBuffer = value; }
+        }
     }
 }

@@ -79,8 +79,15 @@
     <Reference Include="NHibernate.ByteCode.LinFu">
       <HintPath>..\..\..\..\..\..\Emgu\emgucv-windesktop 3.3.0.2824\bin\NHibernate.ByteCode.LinFu.dll</HintPath>
     </Reference>
+    <Reference Include="SharpGL, Version=2.4.0.0, Culture=neutral, PublicKeyToken=27fc851303210b27, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\SharpGL\sharpgl-master\source\SharpGL\Core\SharpGL.WinForms\bin\Debug\SharpGL.dll</HintPath>
+    </Reference>
     <Reference Include="SharpGL.SceneGraph">
       <HintPath>..\..\..\SharpGL\sharpgl-master\source\SharpGL\Core\SharpGL.WinForms\bin\Debug\SharpGL.SceneGraph.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpGL.WinForms">
+      <HintPath>..\..\..\SharpGL\sharpgl-master\source\SharpGL\Core\SharpGL.WinForms\bin\Debug\SharpGL.WinForms.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -101,6 +108,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="3DView.cs" />
     <Compile Include="AppInitializer.cs" />
     <Compile Include="BitmapEventArgs.cs" />
     <Compile Include="BlobDetector.cs" />
@@ -136,9 +144,16 @@
     <Compile Include="MathFuncs.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Scene3D.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Scene3D.Designer.cs">
+      <DependentUpon>Scene3D.cs</DependentUpon>
+    </Compile>
     <Compile Include="StereoPair.cs" />
     <Compile Include="StereoPairCalibration.cs" />
     <Compile Include="Triangulation.cs" />
+    <Compile Include="TriangulationEventArgs.cs" />
     <Compile Include="UndefinedCamera.cs" />
     <EmbeddedResource Include="Calibration.resx">
       <DependentUpon>Calibration.cs</DependentUpon>
@@ -161,6 +176,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Scene3D.resx">
+      <DependentUpon>Scene3D.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

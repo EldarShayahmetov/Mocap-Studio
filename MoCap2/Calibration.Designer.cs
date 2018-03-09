@@ -36,14 +36,17 @@
             this.CalculateB = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.PointsBuffTB = new System.Windows.Forms.TextBox();
+            this.BufferL = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.WWidthTB = new System.Windows.Forms.TextBox();
             this.ResetB = new System.Windows.Forms.Button();
             this.StartB = new System.Windows.Forms.Button();
             this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.BufferL = new System.Windows.Forms.Label();
-            this.BudderTB = new System.Windows.Forms.TextBox();
+            this.button1 = new System.Windows.Forms.Button();
+            this.button2 = new System.Windows.Forms.Button();
+            this.button3 = new System.Windows.Forms.Button();
             this.CalibrationTB.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.groupBox4.SuspendLayout();
@@ -146,7 +149,7 @@
             // 
             // groupBox3
             // 
-            this.groupBox3.Controls.Add(this.BudderTB);
+            this.groupBox3.Controls.Add(this.PointsBuffTB);
             this.groupBox3.Controls.Add(this.BufferL);
             this.groupBox3.ForeColor = System.Drawing.Color.White;
             this.groupBox3.Location = new System.Drawing.Point(6, 180);
@@ -156,10 +159,35 @@
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Advanced";
             // 
+            // PointsBuffTB
+            // 
+            this.PointsBuffTB.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.PointsBuffTB.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.PointsBuffTB.ForeColor = System.Drawing.Color.Honeydew;
+            this.PointsBuffTB.Location = new System.Drawing.Point(202, 29);
+            this.PointsBuffTB.Name = "PointsBuffTB";
+            this.PointsBuffTB.Size = new System.Drawing.Size(100, 23);
+            this.PointsBuffTB.TabIndex = 5;
+            this.PointsBuffTB.Text = "100";
+            // 
+            // BufferL
+            // 
+            this.BufferL.AutoSize = true;
+            this.BufferL.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.BufferL.ForeColor = System.Drawing.Color.Honeydew;
+            this.BufferL.Location = new System.Drawing.Point(24, 32);
+            this.BufferL.Name = "BufferL";
+            this.BufferL.Size = new System.Drawing.Size(101, 17);
+            this.BufferL.TabIndex = 4;
+            this.BufferL.Text = "Frame buffer";
+            // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.button3);
+            this.groupBox2.Controls.Add(this.button2);
+            this.groupBox2.Controls.Add(this.button1);
             this.groupBox2.Controls.Add(this.label1);
-            this.groupBox2.Controls.Add(this.textBox1);
+            this.groupBox2.Controls.Add(this.WWidthTB);
             this.groupBox2.ForeColor = System.Drawing.Color.White;
             this.groupBox2.Location = new System.Drawing.Point(6, 62);
             this.groupBox2.Name = "groupBox2";
@@ -179,16 +207,16 @@
             this.label1.TabIndex = 3;
             this.label1.Text = "Wand width, mm";
             // 
-            // textBox1
+            // WWidthTB
             // 
-            this.textBox1.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.textBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.textBox1.ForeColor = System.Drawing.Color.Honeydew;
-            this.textBox1.Location = new System.Drawing.Point(202, 28);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(100, 23);
-            this.textBox1.TabIndex = 2;
-            this.textBox1.Text = "500";
+            this.WWidthTB.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.WWidthTB.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.WWidthTB.ForeColor = System.Drawing.Color.Honeydew;
+            this.WWidthTB.Location = new System.Drawing.Point(202, 28);
+            this.WWidthTB.Name = "WWidthTB";
+            this.WWidthTB.Size = new System.Drawing.Size(100, 23);
+            this.WWidthTB.TabIndex = 2;
+            this.WWidthTB.Text = "500";
             // 
             // ResetB
             // 
@@ -228,27 +256,44 @@
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Ground Plane";
             // 
-            // BufferL
+            // button1
             // 
-            this.BufferL.AutoSize = true;
-            this.BufferL.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.BufferL.ForeColor = System.Drawing.Color.Honeydew;
-            this.BufferL.Location = new System.Drawing.Point(24, 32);
-            this.BufferL.Name = "BufferL";
-            this.BufferL.Size = new System.Drawing.Size(101, 17);
-            this.BufferL.TabIndex = 4;
-            this.BufferL.Text = "Frame buffer";
+            this.button1.BackColor = System.Drawing.Color.White;
+            this.button1.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.button1.ForeColor = System.Drawing.Color.Black;
+            this.button1.Location = new System.Drawing.Point(27, 71);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(88, 23);
+            this.button1.TabIndex = 4;
+            this.button1.Text = "2-point wand";
+            this.button1.UseVisualStyleBackColor = false;
             // 
-            // BudderTB
+            // button2
             // 
-            this.BudderTB.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.BudderTB.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.BudderTB.ForeColor = System.Drawing.Color.Honeydew;
-            this.BudderTB.Location = new System.Drawing.Point(202, 29);
-            this.BudderTB.Name = "BudderTB";
-            this.BudderTB.Size = new System.Drawing.Size(100, 23);
-            this.BudderTB.TabIndex = 5;
-            this.BudderTB.Text = "100";
+            this.button2.BackColor = System.Drawing.Color.White;
+            this.button2.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.button2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.button2.ForeColor = System.Drawing.Color.Black;
+            this.button2.Location = new System.Drawing.Point(121, 71);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(94, 23);
+            this.button2.TabIndex = 5;
+            this.button2.Text = "3-point wand";
+            this.button2.UseVisualStyleBackColor = false;
+            // 
+            // button3
+            // 
+            this.button3.BackColor = System.Drawing.Color.White;
+            this.button3.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.button3.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.button3.ForeColor = System.Drawing.Color.Black;
+            this.button3.Location = new System.Drawing.Point(221, 71);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(86, 23);
+            this.button3.TabIndex = 6;
+            this.button3.Text = "Custom";
+            this.button3.UseVisualStyleBackColor = false;
             // 
             // Calibration
             // 
@@ -283,13 +328,16 @@
         private System.Windows.Forms.Button StartB;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox WWidthTB;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.Button Apply;
         private System.Windows.Forms.DataGridView dataGridView1;
-        private System.Windows.Forms.TextBox BudderTB;
+        private System.Windows.Forms.TextBox PointsBuffTB;
         private System.Windows.Forms.Label BufferL;
         private System.Windows.Forms.Button CalculateB;
+        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button button1;
     }
 }

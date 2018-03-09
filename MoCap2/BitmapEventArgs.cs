@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MoCap2
 {
-    class BitmapEventArgs: EventArgs
+    public class BitmapEventArgs: EventArgs
     {
         public Bitmap _bitmap { get; private set;}
         public int _fps { get; private set; }
