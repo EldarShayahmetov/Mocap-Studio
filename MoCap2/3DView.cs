@@ -185,6 +185,8 @@ namespace MoCap2
                         gl.PopMatrix();
 
                         DrawWand();
+
+                        DrawWandWidth(5, 5);
                     }
 
                 }
@@ -193,6 +195,9 @@ namespace MoCap2
 
 
             gl.LoadIdentity();
+
+
+            
 
             gl.Translate(glX, -glY, glZ);
             gl.Rotate(angY, 1, 0, 0);
@@ -226,6 +231,8 @@ namespace MoCap2
             DrawCoordinates(gl);
             DrawGrid(gl, 20);
 
+
+           
 
             gl.Flush();
         }
@@ -336,6 +343,13 @@ namespace MoCap2
             gl.Color(1f, 1f, 0f);
             gl.Vertex(points[0, 1] / scale, (points[1, 1] / scale) + yoffset, points[2, 1] / scale);
             gl.End();
+        }
+
+
+        void DrawWandWidth(int x, int y)
+        {
+            double width = Math.Sqrt(Math.Pow(points[0, 0] - points[0, 2], 2) + Math.Pow(points[1, 0] - points[1, 2], 2) + Math.Pow(points[2, 0] - points[2, 2], 2))/scale;
+            gl.DrawText(x, y, 1, 1, 1, "Arial", 30, "Wand Width = " + width.ToString());
         }
     }
 }

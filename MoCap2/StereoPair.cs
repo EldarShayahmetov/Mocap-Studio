@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.Windows.Forms;
 
 
 using Emgu.CV;
@@ -92,16 +93,6 @@ namespace MoCap2
 
             }else if(_mode == SPMode.Calibration){
 
-                if (_calibration == null)
-                {
-                   
-                    _calibration = new StereoPairCalibration(_camL.CameraMatrix, _camR.CameraMatrix, _camL.DistCoeffs, _camR.DistCoeffs, _camL.ResolutionSize, _pointsBuffer);
-                    _calibration.SetOffset(_camL.BlobDet.Cx, _camL.BlobDet.Cy, _camR.BlobDet.Cx, _camR.BlobDet.Cy);
-                    _camL.Calibration = _calibration;
-                    _camR.Calibration = _calibration;
-                   
-                }
-
                 //Calibrate class realisation
                 if (_calibration.BufferData(_stereoPoints))
                 {
@@ -118,9 +109,6 @@ namespace MoCap2
                     Matrix<double> pIdentity = new Matrix<double>(I);
                     pI = pIdentity.Mat;
 
-                    _calibration = null;
-                    _camL.Calibration = null;
-                    _camR.Calibration = null;
                     Mode = SPMode.Triangulation;
                 }
 
@@ -135,13 +123,37 @@ namespace MoCap2
         public SPMode Mode
         {
             get { return _mode; }
-            set { _mode = value;
-            if(value == SPMode.View)
-                _modeImage = Image.FromFile("Assets\\button_view.png");
+            set {
+                if (value == SPMode.View)
+                {
+                    _modeImage = Image.FromFile("Assets\\button_view.png");
+                    _calibration = null;
+                    _camL.Calibration = null;
+                    _camR.Calibration = null;
+                }
                 if (value == SPMode.Calibration)
-                 _modeImage = Image.FromFile("Assets\\button_calibration.png");
-                if(value == SPMode.Triangulation)
-                 _modeImage = Image.FromFile("Assets\\button_triangulation.png");
+                {
+
+                        _modeImage = Image.FromFile("Assets\\button_calibration.png");
+
+                        _calibration = new StereoPairCalibration(_camL.CameraMatrix, _camR.CameraMatrix, _camL.DistCoeffs, _camR.DistCoeffs, _camL.ResolutionSize, _pointsBuffer);
+
+ 
+                        _camL.Calibration = _calibration;
+                        _camR.Calibration = _calibration;
+
+
+                }
+                if (value == SPMode.Triangulation)
+                {
+                    _modeImage = Image.FromFile("Assets\\button_triangulation.png");
+                    _calibration = null;
+                    _camL.Calibration = null;
+                    _camR.Calibration = null;
+                }
+
+                _mode = value;
+
                 OnModeChanged?.Invoke();
             }
         }

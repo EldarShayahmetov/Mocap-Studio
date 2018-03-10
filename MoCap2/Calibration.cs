@@ -44,12 +44,21 @@ namespace MoCap2
         {
             if (camCont.GetCameraByNum(0).CameraMatrix.Rows != 0 && camCont.GetCameraByNum(1).CameraMatrix.Rows != 0)
             {
-                camCont.GetStereopair().Mode = SPMode.Calibration;
                 camCont.GetStereopair().PointsBuffer = Int32.Parse(PointsBuffTB.Text);
+                camCont.GetStereopair().Mode = SPMode.Calibration;
             }
             else
                 MessageBox.Show("Cameras Intrisics not loaded! Please, load it before calibration...", "Attention!", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
         }
 
+        private void ResetB_Click(object sender, EventArgs e)
+        {
+            camCont.GetStereopair().Mode = SPMode.View;
+        }
+
+        private void StartB_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
