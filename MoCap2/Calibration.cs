@@ -27,6 +27,8 @@ namespace MoCap2
             }
         }
 
+
+
         public Calibration()
         {
             InitializeComponent();
@@ -42,6 +44,7 @@ namespace MoCap2
 
         private void StartCalib(object sender, EventArgs e)
         {
+
             if (camCont.GetCameraByNum(0).CameraMatrix.Rows != 0 && camCont.GetCameraByNum(1).CameraMatrix.Rows != 0)
             {
                 camCont.GetStereopair().PointsBuffer = Int32.Parse(PointsBuffTB.Text);

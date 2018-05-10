@@ -267,6 +267,7 @@
             this.IntrisicsB.TabIndex = 9;
             this.IntrisicsB.Text = "Load...";
             this.IntrisicsB.UseVisualStyleBackColor = true;
+            this.IntrisicsB.Click += new System.EventHandler(this.IntrisicsB_Click);
             // 
             // IntrisicsL
             // 

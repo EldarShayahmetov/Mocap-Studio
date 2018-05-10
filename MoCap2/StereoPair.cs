@@ -41,7 +41,6 @@ namespace MoCap2
         private PointF[][] _stereoPoints = new PointF[2][];
         private SPMode _mode;
         private Image _modeImage;
-        private double _cx, _cy, _fx, _fy;
         object _locker = new object();
         private int _pointsBuffer = 200;
 
@@ -50,6 +49,7 @@ namespace MoCap2
         Mat r = new Mat();
         Mat t = new Mat();
         Matrix<double> pose;
+        Matrix<double> rot;
 
 
 
@@ -100,7 +100,12 @@ namespace MoCap2
                 }
                 else
                 {
-                    _calibration.StartCalibration(out p, out r, out t, out pose, out _fx, out _fy, out _cx, out _cy);
+                    _calibration.StartCalibration(out p, out r, out t, out pose, out rot);
+
+                    FileStorage fs = new FileStorage("RT.xml", FileStorage.Mode.Append);
+                    fs.Write(r);
+                    fs.Write(t);
+                    fs.ReleaseAndGetString();
 
                     double[,] I = { { 1, 0, 0, 0}, // Identity
                             { 0, 1, 0, 0},
@@ -171,6 +176,7 @@ namespace MoCap2
             PointF[][] tempStereoPoints = new PointF[2][];
             tempStereoPoints[0] = new PointF[_stereoPoints[0].Length];
             tempStereoPoints[1] = new PointF[_stereoPoints[1].Length];
+
             for (int i = 0;i<_stereoPoints[0].Length; i++)
             {
                 tempStereoPoints[0][i] = _stereoPoints[0][i];
@@ -180,11 +186,11 @@ namespace MoCap2
 
             for (int i = 0; i < _stereoPoints[0].Length; i++)
             {
-                tempStereoPoints[0][i].X = (tempStereoPoints[0][i].X - (float)_cx) / (float)_fx;
-                tempStereoPoints[0][i].Y= (tempStereoPoints[0][i].Y - (float)_cy) / (float)_fy;
+                tempStereoPoints[0][i].X = (tempStereoPoints[0][i].X - (float)camerasParam.cx0) / (float)camerasParam.fx0;
+                tempStereoPoints[0][i].Y= (tempStereoPoints[0][i].Y - (float)camerasParam.cy0) / (float)camerasParam.fy0;
 
-                tempStereoPoints[1][i].X = (tempStereoPoints[0][i].X - (float)_cx) / (float)_fx;
-                tempStereoPoints[1][i].Y = (tempStereoPoints[0][i].Y - (float)_cy) / (float)_fy;
+                tempStereoPoints[1][i].X = (tempStereoPoints[1][i].X - (float)camerasParam.cx1) / (float)camerasParam.fx1;  // (tempStereoPoints[0][i].X - (float)_cx) / (float)_fx; 
+                tempStereoPoints[1][i].Y = (tempStereoPoints[1][i].Y - (float)camerasParam.cy1) / (float)camerasParam.fy1; // (tempStereoPoints[0][i].Y - (float)_cy) / (float)_fy;
             }
 
             double[,] p1 = new double[tempStereoPoints[0].Length, 2];
@@ -241,7 +247,7 @@ namespace MoCap2
 
             out4DMatrix = glTransform * out4DMatrix;
 
-            OnTriangulated?.Invoke(new TriangulationEventArgs(out4DMatrix, pose));
+            OnTriangulated?.Invoke(new TriangulationEventArgs(out4DMatrix, pose, rot));
         }
 
 

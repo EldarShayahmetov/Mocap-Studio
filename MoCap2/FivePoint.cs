@@ -62,7 +62,7 @@ namespace MoCap2
         }
         //  OutputArray _R, OutputArray _t, double distanceThresh, InputOutputArray _mask, OutputArray triangulatedPoints
 
-        public static int RecoverPose(Mat E, PointF[] _points1, PointF[] _points2, Mat _cameraMatrix, double _distanceThresh, out Mat _R, out Mat _t, out Mat _PM, out double _fx, out double _fy, out double _cx, out double _cy)
+        public static int RecoverPose(Mat E, PointF[] _points1, PointF[] _points2, Mat _cameraMatrix, double _distanceThresh, out Mat _R, out Mat _t, out Mat _PM)
         {
             Mat pointsMat1 = new Mat();
             Mat pointsMat2 = new Mat();
@@ -112,12 +112,6 @@ namespace MoCap2
             double fy = cameraMatrix[1, 1];
             double cx = cameraMatrix[0, 2];
             double cy = cameraMatrix[1, 2];
-
-            _fx = fx;
-            _fy = fy;
-            _cx = cx;
-            _cy = cy;
-
 
             for (int i = 0; i < points1.Rows; i++) {
 

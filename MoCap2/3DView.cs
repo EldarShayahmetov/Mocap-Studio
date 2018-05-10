@@ -18,19 +18,26 @@ using Emgu.CV.CvEnum;
 
 namespace MoCap2
 {
+    public enum ViewMode
+    {
+        DrawAll,
+        DrawWand
+    }
+
+
     public class _3DView
     {
         OpenGLControl glControl;
         OpenGL gl;
-        private float rot = 45;
         private float scale = 0.1f;
 
-        Matrix<double> pose = new Matrix<double>(3,1);
+        Matrix<double> pose = new Matrix<double>(3, 1);
+        Matrix<double> rot = new Matrix<double>(3, 1);
         Matrix<double> points;
 
         Object locker = new Object();
-        
 
+        public ViewMode mode = ViewMode.DrawWand;
 
         #region Mouse 
         bool isDown = false;
@@ -69,6 +76,7 @@ namespace MoCap2
             lock (locker)
             {
                 pose = args._campos;
+                rot = args._camrot;
                 points = new Matrix<double>(args._points4D.Data);
             }
         }
@@ -154,7 +162,6 @@ namespace MoCap2
 
             gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
 
-            IntPtr glQ = gl.NewQuadric();
 
 
             //DRAW 3D Points
@@ -162,34 +169,10 @@ namespace MoCap2
 
             lock (locker)
             {
-                if (points != null)
-                { 
-
-                    if (points.Cols == 3)
-                    {
-                        gl.Color(0f, 1f, 0f);
-                        gl.PushMatrix();
-                        gl.Translate(points[0, 0] / scale, (points[1, 0] / scale) + yoffset, points[2, 0] / scale);
-                        gl.Sphere(glQ, 0.15, 20, 20);
-                        gl.PopMatrix();
-
-                      
-                        gl.PushMatrix();
-                        gl.Translate(points[0, 1] / scale, (points[1, 1] / scale) + yoffset, points[2, 1] / scale);
-                        gl.Sphere(glQ, 0.15, 20, 20);
-                        gl.PopMatrix();
-
-                        gl.PushMatrix();
-                        gl.Translate(points[0, 2] / scale, (points[1, 2] / scale) + yoffset, points[2, 2] / scale);
-                        gl.Sphere(glQ, 0.15, 20, 20);
-                        gl.PopMatrix();
-
-                        DrawWand();
-
-                        DrawWandWidth(5, 5);
-                    }
-
-                }
+                if (mode == ViewMode.DrawAll)
+                    DrawAllTriangPoints();
+                else if (mode == ViewMode.DrawWand)
+                    DrawWandPoints();
             }
             #endregion
 
@@ -221,11 +204,9 @@ namespace MoCap2
             gl.End();
 
 
-            gl.PointSize(10f);
-            gl.Begin(OpenGL.GL_POINTS);
-            gl.Color(1f, 0f, 1f);
-            gl.Vertex(pose[0,0] * 10, pose[1,0] * 10, pose[2,0] * 10);
-            gl.End();
+
+            DrawCamerasPoses();
+
 
 
             DrawCoordinates(gl);
@@ -324,25 +305,65 @@ namespace MoCap2
         }
 
 
-        void DrawWand()
+        void DrawWandLines()
         {
-            gl.Begin(OpenGL.GL_LINES);
-            gl.Color(1f, 1f, 0f);
-            gl.Vertex(points[0, 1] / scale, (points[1, 1] / scale) + yoffset, points[2, 1] / scale);
-            gl.Color(1f, 1f, 0f);
-            gl.Vertex(points[0, 0] / scale, (points[1, 0] / scale) + yoffset, points[2, 0] / scale);
+            if (points != null)
+            {
+                gl.Begin(OpenGL.GL_LINES);
+                gl.Color(1f, 1f, 0f);
+                gl.Vertex(points[0, 1] / scale, (points[1, 1] / scale) + yoffset, points[2, 1] / scale);
+                gl.Color(1f, 1f, 0f);
+                gl.Vertex(points[0, 0] / scale, (points[1, 0] / scale) + yoffset, points[2, 0] / scale);
 
 
-            gl.Color(1f, 1f, 0f);
-            gl.Vertex(points[0, 0] / scale, (points[1, 0] / scale) + yoffset, points[2, 0] / scale);
-            gl.Color(1f, 1f, 0f);
-            gl.Vertex(points[0, 2] / scale, (points[1, 2] / scale) + yoffset, points[2, 2] / scale);
+                gl.Color(1f, 1f, 0f);
+                gl.Vertex(points[0, 0] / scale, (points[1, 0] / scale) + yoffset, points[2, 0] / scale);
+                gl.Color(1f, 1f, 0f);
+                gl.Vertex(points[0, 2] / scale, (points[1, 2] / scale) + yoffset, points[2, 2] / scale);
 
-            gl.Color(1f, 1f, 0f);
-            gl.Vertex(points[0, 2] / scale, (points[1, 2] / scale) + yoffset, points[2, 2] / scale);
-            gl.Color(1f, 1f, 0f);
-            gl.Vertex(points[0, 1] / scale, (points[1, 1] / scale) + yoffset, points[2, 1] / scale);
-            gl.End();
+                gl.Color(1f, 1f, 0f);
+                gl.Vertex(points[0, 2] / scale, (points[1, 2] / scale) + yoffset, points[2, 2] / scale);
+                gl.Color(1f, 1f, 0f);
+                gl.Vertex(points[0, 1] / scale, (points[1, 1] / scale) + yoffset, points[2, 1] / scale);
+                gl.End();
+            }
+        }
+
+
+        void DrawCamera()
+        {
+            gl.Begin(OpenGL.GL_TRIANGLES);           // Begin drawing the pyramid with 4 triangles                                           // Front
+            gl.Color(1.0f, 0.0f, 0.0f);     // Red
+            gl.Vertex(0.0f, 1.0f, 0.0f);
+            gl.Color(0.0f, 1.0f, 0.0f);     // Green
+            gl.Vertex(-1.0f, -1.0f, 1.0f);
+            gl.Color(0.0f, 0.0f, 1.0f);     // Blue
+            gl.Vertex(1.0f, -1.0f, 1.0f);
+
+            // Right
+            gl.Color(1.0f, 0.0f, 0.0f);     // Red
+            gl.Vertex(0.0f, 1.0f, 0.0f);
+            gl.Color(0.0f, 0.0f, 1.0f);     // Blue
+            gl.Vertex(1.0f, -1.0f, 1.0f);
+            gl.Color(0.0f, 1.0f, 0.0f);     // Green
+            gl.Vertex(1.0f, -1.0f, -1.0f);
+
+            // Back
+            gl.Color(1.0f, 0.0f, 0.0f);     // Red
+            gl.Vertex(0.0f, 1.0f, 0.0f);
+            gl.Color(0.0f, 1.0f, 0.0f);     // Green
+            gl.Vertex(1.0f, -1.0f, -1.0f);
+            gl.Color(0.0f, 0.0f, 1.0f);     // Blue
+            gl.Vertex(-1.0f, -1.0f, -1.0f);
+
+            // Left
+            gl.Color(1.0f, 0.0f, 0.0f);       // Red
+            gl.Vertex(0.0f, 1.0f, 0.0f);
+            gl.Color(0.0f, 0.0f, 1.0f);       // Blue
+            gl.Vertex(-1.0f, -1.0f, -1.0f);
+            gl.Color(0.0f, 1.0f, 0.0f);       // Green
+            gl.Vertex(-1.0f, -1.0f, 1.0f);
+            gl.End();   // Done drawing the pyramid
         }
 
 
@@ -350,6 +371,81 @@ namespace MoCap2
         {
             double width = Math.Sqrt(Math.Pow(points[0, 0] - points[0, 2], 2) + Math.Pow(points[1, 0] - points[1, 2], 2) + Math.Pow(points[2, 0] - points[2, 2], 2))/scale;
             gl.DrawText(x, y, 1, 1, 1, "Arial", 30, "Wand Width = " + width.ToString());
+        }
+
+
+        void DrawAllTriangPoints()
+        {
+            if(points != null)
+            {
+                for (int i = 0; i < points.Cols; i++)
+                {
+                    IntPtr glQ = gl.NewQuadric();
+                    gl.Color(0f, 1f, 0f);
+                    gl.PushMatrix();
+                    gl.Translate(points[0, i] / scale, (points[1, i] / scale) + yoffset, points[2, i] / scale);
+                    gl.Sphere(glQ, 0.15, 20, 20);
+                    gl.PopMatrix();
+                }
+            }
+        }
+
+        void DrawCamerasPoses()
+        {
+            gl.MatrixMode(OpenGL.GL_MODELVIEW);
+            gl.PushMatrix();
+            gl.Scale(0.7, 0.7, 0.7);
+            gl.Translate(0, 2 * yoffset, 0);
+            gl.Rotate(90, 0, 0);
+            DrawCamera();
+            gl.PopMatrix();
+
+
+
+                  
+            gl.MatrixMode(OpenGL.GL_MODELVIEW);
+            gl.PushMatrix();
+            gl.Scale(0.7, 0.7, 0.7);
+            gl.Translate(pose[0, 0] * 10, pose[1, 0] * 10 + 2 * yoffset, pose[2, 0] * 10);
+            gl.Rotate(180 * (float)rot[0, 0], -180 * (float)rot[1, 0], -180 * (float)rot[2, 0]);
+            DrawCamera();
+            gl.PopMatrix();
+            
+        }
+
+        void DrawWandPoints()
+        {
+            if (points != null)
+            {
+
+                if (points.Cols == 3)
+                {
+
+                    IntPtr glQ = gl.NewQuadric();
+
+                    gl.Color(0f, 1f, 0f);
+                    gl.PushMatrix();
+                    gl.Translate(points[0, 0] / scale, (points[1, 0] / scale) + yoffset, points[2, 0] / scale);
+                    gl.Sphere(glQ, 0.15, 20, 20);
+                    gl.PopMatrix();
+
+
+                    gl.PushMatrix();
+                    gl.Translate(points[0, 1] / scale, (points[1, 1] / scale) + yoffset, points[2, 1] / scale);
+                    gl.Sphere(glQ, 0.15, 20, 20);
+                    gl.PopMatrix();
+
+                    gl.PushMatrix();
+                    gl.Translate(points[0, 2] / scale, (points[1, 2] / scale) + yoffset, points[2, 2] / scale);
+                    gl.Sphere(glQ, 0.15, 20, 20);
+                    gl.PopMatrix();
+
+                    DrawWandLines();
+
+                    DrawWandWidth(5, 5);
+                }
+
+            }
         }
     }
 }

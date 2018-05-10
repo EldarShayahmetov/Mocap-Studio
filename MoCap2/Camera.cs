@@ -289,56 +289,79 @@ namespace MoCap2
 
         private Matrix<double> ScaleMatrix()
         {
-            if (_cameraMatrixOrig != null) {
-
-                Matrix<double> cameraMatrixOrig = new Matrix<double>(_cameraMatrixOrig.Rows, _cameraMatrixOrig.Cols, _cameraMatrixOrig.NumberOfChannels);
-                _cameraMatrixOrig.CopyTo(cameraMatrixOrig);// Cope Camera Mat to Matrx
-
-                double scaleX = 1;
-                double scaleY = 1;
-
-                switch (_width)
+            try
+            {
+                if (_cameraMatrixOrig != null)
                 {
-                    case 640:
-                        scaleX = 1;
-                        scaleY = 1;
-                        break;  //  return "640x480";
-                    case 800:
-                        scaleX = 1.25;
-                        scaleY = 1.25;
-                        break; //  return "800x600";
-                    case 1280:
-                        scaleX = 2;
-                        scaleY = 1.5;
-                        break; //  return "1280x720";
-                    case 1920:
-                        scaleX = 3;
-                        scaleY = 2.25;
-                        break; //   return "1920x1080";
-                    default:
-                        scaleX = 1;
-                        scaleY = 1;
-                        break;  //  return "640x480";
+                    Matrix<double> cameraMatrixOrig = new Matrix<double>(_cameraMatrixOrig.Rows, _cameraMatrixOrig.Cols, _cameraMatrixOrig.NumberOfChannels);
+                    _cameraMatrixOrig.CopyTo(cameraMatrixOrig);// Cope Camera Mat to Matrx
+
+                    double scaleX = 1;
+                    double scaleY = 1;
+
+                    switch (_width)
+                    {
+                        case 640:
+                            scaleX = 1;
+                            scaleY = 1;
+                            break;  //  return "640x480";
+                        case 800:
+                            scaleX = 1.25;
+                            scaleY = 1.25;
+                            break; //  return "800x600";
+                        case 1280:
+                            scaleX = 2;
+                            scaleY = 1.5;
+                            break; //  return "1280x720";
+                        case 1920:
+                            scaleX = 3;
+                            scaleY = 2.25;
+                            break; //   return "1920x1080";
+                        default:
+                            scaleX = 1;
+                            scaleY = 1;
+                            break;  //  return "640x480";
+                    }
+
+                    double fx = cameraMatrixOrig.Data[0, 0] * scaleX;
+                    double fy = cameraMatrixOrig.Data[1, 1] * scaleY;
+                    double cx = cameraMatrixOrig.Data[0, 2] * scaleX;
+                    double cy = cameraMatrixOrig.Data[1, 2] * scaleY;
+
+                    if(_deviceNum == 0)
+                    {
+                        camerasParam.cx0 = cx;
+                        camerasParam.cy0 = cy;
+                        camerasParam.fx0 = fx;
+                        camerasParam.fy0 = fy;
+                    }
+
+                    if (_deviceNum == 1)
+                    {
+                        camerasParam.cx1 = cx;
+                        camerasParam.cy1 = cy;
+                        camerasParam.fx1 = fx;
+                        camerasParam.fy1 = fy;
+                    }
+
+                    double[,] CMS = new double[3, 3] { { fx, 0, cx }, { 0, fy, cy }, { 0, 0, 1 } };
+
+                    Matrix<double> CameraMatrixScaled = new Matrix<double>(CMS);
+
+                    _blobDetector.SetFocalPrincipal(fx, fy, cx, cy);
+
+                    CameraMatrixScaled.Mat.CopyTo(_cameraMatrix);
+
+                    return CameraMatrixScaled;
+
                 }
-
-                double fx = cameraMatrixOrig.Data[0, 0] * scaleX;
-                double fy = cameraMatrixOrig.Data[1, 1] * scaleY;
-                double cx = cameraMatrixOrig.Data[0, 2] * scaleX;
-                double cy = cameraMatrixOrig.Data[1, 2] * scaleY;
-
-
-                double[,] CMS = new double[3, 3] { { fx, 0, cx }, { 0, fy, cy }, { 0, 0, 1 } };
-
-                Matrix<double> CameraMatrixScaled = new Matrix<double>(CMS);
-
-                _blobDetector.SetFocalPrincipal(fx, fy, cx, cy);
-
-                CameraMatrixScaled.Mat.CopyTo(_cameraMatrix);
-
-                return CameraMatrixScaled;
-
+                return null;
             }
-            return null;
+            catch
+            {
+                MessageBox.Show("Camera Intrisics not loaded...", "Please load camera intrisics!");
+                return null;
+            }
         }
        
         #endregion
@@ -369,7 +392,7 @@ namespace MoCap2
                 fs["cameraMatrix"].ReadMat(_cameraMatrixOrig);
 
                 Matrix<double> cameraMatrixOrig = new Matrix<double>(_cameraMatrixOrig.Rows, _cameraMatrixOrig.Cols, _cameraMatrixOrig.NumberOfChannels);
-                _cameraMatrix.CopyTo(cameraMatrixOrig);// Cope Camera Mat to Matrx
+                _cameraMatrixOrig.CopyTo(cameraMatrixOrig);// Cope Camera Mat to Matrx
 
                 ScaleMatrix();
 

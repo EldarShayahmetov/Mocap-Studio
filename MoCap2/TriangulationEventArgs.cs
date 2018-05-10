@@ -16,11 +16,13 @@ namespace MoCap2
     {
        public Matrix<double> _points4D { get;}
        public Matrix<double> _campos { get; }
+        public Matrix<double> _camrot { get; }
 
-        public TriangulationEventArgs(Matrix<double> points4D, Matrix<double> campos)
+        public TriangulationEventArgs(Matrix<double> points4D, Matrix<double> campos, Matrix<double> camrot)
         {
             _points4D = points4D;
             _campos = campos;
+            _camrot = camrot;
         }
         
 

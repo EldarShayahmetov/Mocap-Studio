@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Drawing;
 using System.Diagnostics;
 using System.Windows.Forms;
+using System.IO;
 
 using Emgu.CV;
 using Emgu.CV.CvEnum;
@@ -157,15 +158,16 @@ namespace MoCap2
         }
 
 
-        public void StartCalibration(out Mat p, out Mat r, out Mat t, out Matrix<double> pos, out double _fx, out double _fy, out double _cx, out double _cy)
+        public void StartCalibration(out Mat p, out Mat r, out Mat t, out Matrix<double> pos, out Matrix<double> rot)
         {
             p = new Mat();
             r = new Mat();
             t = new Mat();
+            Mat f = new Mat();
             Mat e = new Mat();
 
 
-            List<PointF> wpLList = new List<PointF>();
+                List<PointF> wpLList = new List<PointF>();
             List<PointF> wpRList = new List<PointF>();
 
             for (int i = 0; i < _pointsBuffer; i++)
@@ -193,22 +195,33 @@ namespace MoCap2
             }
 
 
-
-
             VectorOfPointF vpL = new VectorOfPointF(wpLList.ToArray());
             VectorOfPointF vpR = new VectorOfPointF(wpRList.ToArray());
 
-            e = CvInvoke.FindEssentialMat(vpL, vpR, _cameraMatrix0);
+            //Watch Dociumentation for accuracy
+            e = CvInvoke.FindEssentialMat(vpL, vpR, _cameraMatrix0,FmType.LMeds,0.999);
 
             Matrix<double> Ess = new Matrix<double>(e.Rows, e.Cols, e.NumberOfChannels);
             e.CopyTo(Ess);
 
-            FivePoint.RecoverPose(e, wpLList.ToArray(), wpRList.ToArray(), _cameraMatrix0, 100, out r, out t, out p, out double fx, out double fy, out double cx, out double cy);
 
-            _fx = fx;
-            _fy = fy;
-            _cx = cx;
-            _cy = cy;
+
+            //Controlling _cameraMtrix and _distCoeffs
+            Matrix<double> distMat = new Matrix<double>(_distCoeffs0.Rows, _distCoeffs0.Cols, _distCoeffs0.NumberOfChannels);
+            _distCoeffs0.CopyTo(distMat);
+            Matrix<double> cameraControlMatrix = new Matrix<double>(_cameraMatrix0.Rows, _cameraMatrix0.Cols, _cameraMatrix0.NumberOfChannels);
+            _cameraMatrix0.CopyTo(cameraControlMatrix);
+
+            SaveMatrix(distMat, "dist.csv");
+            SaveMatrix(cameraControlMatrix, "intris.csv");
+
+            //END
+
+
+            FivePoint.RecoverPose(e, wpLList.ToArray(), wpRList.ToArray(), _cameraMatrix0, 100, out r, out t, out p);
+
+            SavePoints(_wandPointsL, "leftPoints.csv",true,camerasParam.fx0, camerasParam.fy0, camerasParam.cx0, camerasParam.cy0);
+            SavePoints(_wandPointsR, "rightPoints.csv", true, camerasParam.fx1, camerasParam.fy1, camerasParam.cx1, camerasParam.cy1);
 
             Matrix<double> pose = new Matrix<double>(1, 3);
             Matrix<double> rmat = new Matrix<double>(r.Rows, r.Cols, r.NumberOfChannels);
@@ -218,10 +231,101 @@ namespace MoCap2
             Matrix<double> pmat = new Matrix<double>(p.Rows, p.Cols, p.NumberOfChannels);
             p.CopyTo(pmat);
 
+            //FOR MATLAB
+            SaveMatrix(rmat, "rmat.csv");
+            SaveMatrix(tmat, "tmat.csv");
+            SaveMatrix(pmat, "pmat.csv");
+            //END FOR MATLAB
+
             pose = (rmat.Transpose() * tmat) * (-1);
             pos = pose;
+
+
+             double[,] Zarr = new double[3,1] { { 0 }, { 0 }, { 1 } };
+             Matrix<double> Z = new Matrix<double>(Zarr);
+             Matrix<double> rotation = rmat.Transpose() * Z;
+
+
+
+
+              //  rotation = new Matrix<double>(3,1);
+             //   CvInvoke.Rodrigues(rmat.Transpose(), rotation);
+
+            /*
+            double[,] I = new double[4, 4] { { 1, 1, 1, 1 }, { -1, -1, -1, -1 }, { -1, -1, -1, -1 }, { 1, 1, 1, 1 } };
+            double[,] View = new double[4, 4] { { rmat[0,0], rmat[0, 1], rmat[0, 2], tmat[0,0] }, { rmat[1, 0], rmat[1, 1], rmat[1, 2], tmat[1, 0] }, { rmat[2, 0], rmat[2, 1], rmat[2, 2], tmat[2, 0] }, { 0, 0, 0, 1 } };
+
+            Matrix<double> viewMatrix = new Matrix<double>(View);
+            Matrix<double> Inverse = new Matrix<double>(I);
+
+            viewMatrix = viewMatrix * Inverse;
+            viewMatrix = viewMatrix.Transpose();
+            */
+
+            rot = rotation;
         }
 
 
+
+        private void SaveMatrix(Matrix<double> mat, string fileName)
+        {
+            //SavingResultsToMATLAB
+            string[] line = new string[mat.Rows];
+            for (int i = 0; i < mat.Rows; i++)
+            {
+                for (int j = 0; j < mat.Cols; j++)
+                {
+                    line[i] += ChangeToDot(mat[i, j].ToString());
+                    if (j != mat.Cols - 1)
+                    {
+                        line[i] += ",";
+                    }
+                }
+                string path = "C:\\Users\\Эльдар\\Desktop\\MocapCalibrations\\" + fileName;
+                File.WriteAllLines(path, line);
+            }
+        }
+
+        private void SavePoints(PointF[][] points, string fileName, bool isUndistorted, double fx, double fy, double cx, double cy)
+        {
+            //SavingResultsToMATLAB
+            string[] line = new string[points.Length];
+            for (int i = 0; i < points.Length; i++)
+            {
+                for (int j = 0; j < points[i].Length; j++)
+                {
+                    if (!isUndistorted)
+                    {
+                        line[i] += ChangeToDot(points[i][j].X.ToString()) + "," + ChangeToDot(points[i][j].Y.ToString());
+                    }
+                    else
+                    {
+                        double x = (points[i][j].X - cx)/fx;
+                        double y = (points[i][j].Y - cy) / fy;
+
+                        line[i] += ChangeToDot(x.ToString()) + "," + ChangeToDot(y.ToString());
+                    }
+
+                    if (j != points[i].Length - 1)
+                    {
+                        line[i] += ",";
+                    }
+                }
+                string path = "C:\\Users\\Эльдар\\Desktop\\MocapCalibrations\\" + fileName;
+                File.WriteAllLines(path, line);
+            }
+        }
+
+        private string ChangeToDot(string value)
+        {
+            string dotString = "";
+            foreach(char symbol in value){
+                dotString += symbol != ',' ? symbol.ToString() : ".";   
+            }
+            return dotString;
+        }
+
     }
+
+    
 }

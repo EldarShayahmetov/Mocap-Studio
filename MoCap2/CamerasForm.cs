@@ -32,6 +32,7 @@ namespace MoCap2
             InitializeComponent();
             InitEvents();
             FillCamList();
+            LoadIntrisicsAuto();
             RefreshUI();
         }
 
@@ -166,6 +167,16 @@ namespace MoCap2
             CodecL.Text = camCont.GetCameraByNum(camInd).CodecName;
         }
 
+
+        private void LoadIntrisicsAuto()
+        {
+            File.Copy(@"C:\Users\Эльдар\Desktop\MoCap2\Camera0Intrisics.xml", String.Concat(Environment.CurrentDirectory, "\\", "Camera0Intrisics.xml"), true);
+            File.Copy(@"C:\Users\Эльдар\Desktop\MoCap2\Camera1Intrisics.xml", String.Concat(Environment.CurrentDirectory, "\\", "Camera1Intrisics.xml"), true);
+            camCont.GetCameraByNum(0).LoadIntrisics("Camera0Intrisics.xml");
+            camCont.GetCameraByNum(1).LoadIntrisics("Camera1Intrisics.xml");
+        }
+
+
         private void LoadIntrisicsDialog(object sender, EventArgs e)
         {
             var dialog = new OpenFileDialog();
@@ -194,5 +205,9 @@ namespace MoCap2
             this.FormClosing -= CloseForm;
         }
 
+        private void IntrisicsB_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

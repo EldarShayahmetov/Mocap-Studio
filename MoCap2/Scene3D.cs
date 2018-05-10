@@ -41,5 +41,20 @@ namespace MoCap2
         {
             _instance = null;
         }
+
+        private void WandB_Click(object sender, EventArgs e)
+        {
+            _view.mode = ViewMode.DrawWand;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            _view.mode = ViewMode.DrawAll;
+        }
+
+        private void StartB_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
