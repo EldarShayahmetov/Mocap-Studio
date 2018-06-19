@@ -15,7 +15,7 @@ Passive markers thath reflect light
 
 ## Calibration
 
-Calibration is performed with a T-shap stick with markers at the ends
+Calibration is performed with a T-shape stick with markers at the ends
 
 ![](Images/3.PNG)
 
