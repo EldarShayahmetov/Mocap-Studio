@@ -27,8 +27,7 @@ After calibration program reconstructs visible markers
 
 # Info
 
-For more information contact me at:
-```eldarsharpey@gmail.com```
+For more information contact me at: eldarsharpey@gmail.com
 
 # Authors
 
