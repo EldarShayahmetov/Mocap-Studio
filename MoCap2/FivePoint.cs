@@ -135,7 +135,7 @@ namespace MoCap2
 
             DecomposeEssentialMat(E, out R1, out R2, out t); // we are doing decomposition of E
 
-
+      
             double[,] I = { { 1, 0, 0,0},
                             { 0, 1, 0, 0},
                             { 0, 0, 1, 0}};

@@ -63,5 +63,24 @@ namespace MoCap2
             ModePB.Image = camCont.GetStereopair().ModeImg;
         }
 
+        private void StartB_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void CameraPreviewForm_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

@@ -40,6 +40,9 @@
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.ModePB = new System.Windows.Forms.PictureBox();
+            this.StartB = new System.Windows.Forms.Button();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.PictureBoxMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
@@ -57,6 +60,7 @@
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
+            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
             // 
             // PictureBoxMenu
             // 
@@ -131,24 +135,65 @@
             this.ModePB.TabIndex = 3;
             this.ModePB.TabStop = false;
             // 
+            // StartB
+            // 
+            this.StartB.BackColor = System.Drawing.Color.White;
+            this.StartB.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.StartB.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.StartB.ForeColor = System.Drawing.Color.Black;
+            this.StartB.Location = new System.Drawing.Point(1222, 36);
+            this.StartB.Name = "StartB";
+            this.StartB.Size = new System.Drawing.Size(82, 23);
+            this.StartB.TabIndex = 4;
+            this.StartB.Text = "Undistort";
+            this.StartB.UseVisualStyleBackColor = false;
+            this.StartB.Click += new System.EventHandler(this.StartB_Click);
+            // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Location = new System.Drawing.Point(1222, 69);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(79, 17);
+            this.checkBox1.TabIndex = 5;
+            this.checkBox1.Text = "Show Calib";
+            this.checkBox1.UseVisualStyleBackColor = true;
+            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 46F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label1.ForeColor = System.Drawing.Color.Cornsilk;
+            this.label1.Location = new System.Drawing.Point(537, 15);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(250, 71);
+            this.label1.TabIndex = 6;
+            this.label1.Text = "Preview";
+            // 
             // CameraPreviewForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ControlDarkDark;
             this.ClientSize = new System.Drawing.Size(1325, 615);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.checkBox1);
+            this.Controls.Add(this.StartB);
             this.Controls.Add(this.ModePB);
             this.Controls.Add(this.groupBox1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.Name = "CameraPreviewForm";
             this.Text = "Camera Preview";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.CameraPreviewForm_FormClosed);
+            this.Load += new System.EventHandler(this.CameraPreviewForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.PictureBoxMenu.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             this.groupBox1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.ModePB)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -164,5 +209,8 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem ShowBlobsMI;
         private System.Windows.Forms.ToolStripMenuItem HideBlobsMI;
+        private System.Windows.Forms.Button StartB;
+        private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.Label label1;
     }
 }
