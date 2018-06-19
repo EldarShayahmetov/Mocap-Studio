@@ -17,7 +17,7 @@ Passive markers thath reflect light
 
 Calibration is performed with a T-shap stick with markers at the ends
 
-![](Images/3.png)
+![](Images/3.PNG)
 
 ## Reconstruction
 
